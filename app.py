@@ -744,6 +744,11 @@ class WebGameSession:
         self.answer_checker = AnswerChecker(similarity_threshold=0.90)
         self.round_history: List = []  # Store completed rounds for database saving
         
+        # Hint system
+        self.revealed_letters: set = set()  # Track revealed letter positions
+        self.hints_used = 0  # Track number of hints used in current round
+        self.max_hints = 3  # Maximum hints per round
+        
     def start_new_round(self, category: str, item: str, facts: List[str], difficulty=None, question_id: Optional[int] = None):
         """Start a new game round"""
         self.current_category = category
@@ -756,6 +761,10 @@ class WebGameSession:
         self.round_start_time = datetime.now()
         if difficulty:
             self.difficulty = difficulty
+        
+        # Reset hint system for new round
+        self.revealed_letters.clear()
+        self.hints_used = 0
         
     def add_guess(self, guess: str) -> Dict:
         """Add a guess and return result using proper answer checking"""
@@ -807,6 +816,78 @@ class WebGameSession:
             self.facts_shown += 1
             return fact
         return None
+    
+    def get_hint(self) -> Dict:
+        """Reveal a random letter from the answer and return hint status"""
+        if not self.current_item:
+            return {"success": False, "message": "No active round"}
+        
+        # Check if hints are available
+        if self.hints_used >= self.max_hints:
+            if lang_manager and lang_manager.current_language == 'pl':
+                return {"success": False, "message": "Wykorzystano wszystkie podpowiedzi dla tej rundy"}
+            else:
+                return {"success": False, "message": "All hints used for this round"}
+        
+        # Get positions of letters (not spaces or punctuation)
+        answer = self.current_item.lower()
+        letter_positions = []
+        for i, char in enumerate(answer):
+            if char.isalpha() and i not in self.revealed_letters:
+                letter_positions.append(i)
+        
+        if not letter_positions:
+            if lang_manager and lang_manager.current_language == 'pl':
+                return {"success": False, "message": "Nie ma więcej liter do ujawnienia"}
+            else:
+                return {"success": False, "message": "No more letters to reveal"}
+        
+        # Reveal a random letter
+        position = random.choice(letter_positions)
+        self.revealed_letters.add(position)
+        self.hints_used += 1
+        
+        # Create hint display
+        hint_display = self._create_hint_display()
+        
+        hints_remaining = self.max_hints - self.hints_used
+        if lang_manager and lang_manager.current_language == 'pl':
+            message = f"Ujawniono literę! Pozostałe podpowiedzi: {hints_remaining}"
+        else:
+            message = f"Letter revealed! Hints remaining: {hints_remaining}"
+        
+        return {
+            "success": True,
+            "message": message,
+            "hint_display": hint_display,
+            "hints_used": self.hints_used,
+            "hints_remaining": hints_remaining,
+            "max_hints": self.max_hints
+        }
+    
+    def _create_hint_display(self) -> str:
+        """Create a display string showing revealed letters and blanks"""
+        if not self.current_item:
+            return ""
+        
+        display = []
+        for i, char in enumerate(self.current_item):
+            if char.isalpha():
+                if i in self.revealed_letters:
+                    display.append(char.upper())
+                else:
+                    display.append('_')
+            else:
+                # Keep spaces and punctuation as is
+                display.append(char)
+        
+        return ''.join(display)
+    
+    def get_current_hint_display(self) -> str:
+        """Get the current hint display (for when switching between UI screens)"""
+        if not self.revealed_letters:
+            return ""
+        return self._create_hint_display()
     
     def _end_round(self, correct: bool, similarity: float, match_type: str, auto_revealed: bool = False) -> Dict:
         """End the current round and calculate score"""
@@ -902,7 +983,9 @@ class WebGameSession:
             "max_rounds": self.max_rounds,
             "game_complete": self.is_game_complete(),
             "auto_revealed": auto_revealed,
-            "failed_attempts": self.failed_attempts
+            "failed_attempts": self.failed_attempts,
+            "hints_used": self.hints_used,
+            "hint_display": self.get_current_hint_display()
         }
 
     def is_game_complete(self) -> bool:
@@ -1180,7 +1263,10 @@ def handle_start_game():
                 'difficulty': difficulty['name'] if difficulty else 'normal',
                 'score_multiplier': difficulty['score_multiplier'] if difficulty else 1.0,
                 'max_rounds': max_rounds,
-                'rounds_completed': 0
+                'rounds_completed': 0,
+                'hints_available': game_session.max_hints,
+                'hints_used': 0,
+                'hint_display': ""
             })
         else:
             print("❌ Failed to generate item data")
@@ -1242,6 +1328,24 @@ def handle_submit_guess():
     except Exception as e:
         logger.error(f"Error processing guess: {e}")
         return jsonify({'error': 'Failed to process guess'}), 500
+
+@app.route('/api/get_hint', methods=['POST'])
+def handle_get_hint():
+    """Handle hint request"""
+    try:
+        data = request.get_json() or {}
+        session_id = data.get('session_id') or session.get('game_session_id')
+        if not session_id or session_id not in active_sessions:
+            return jsonify({'error': NO_ACTIVE_SESSION_ERROR}), 400
+        
+        game_session = active_sessions[session_id]
+        hint_result = game_session.get_hint()
+        
+        return jsonify(hint_result)
+            
+    except Exception as e:
+        logger.error(f"Error getting hint: {e}")
+        return jsonify({'error': 'Failed to get hint'}), 500
 
 @app.route('/api/new_round', methods=['POST'])
 def handle_new_round():
@@ -1342,7 +1446,10 @@ def _create_successful_round_response(game_session, category: str, item_data, di
         'score_multiplier': difficulty['score_multiplier'] if difficulty else 1.0,
         'rounds_completed': game_session.rounds_completed,
         'max_rounds': game_session.max_rounds,
-        'game_complete': game_session.is_game_complete()
+        'game_complete': game_session.is_game_complete(),
+        'hints_available': game_session.max_hints,
+        'hints_used': 0,
+        'hint_display': ""
     })
 
 @app.route('/api/start_offline_game', methods=['POST'])

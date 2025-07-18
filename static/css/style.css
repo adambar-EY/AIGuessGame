@@ -1025,3 +1025,73 @@ body {
         flex-direction: column;
     }
 }
+
+/* Hint System Styles */
+.hint-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.letter-hint-display {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.hint-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.hint-letters {
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hint-info {
+    text-align: center;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.hint-buttons button {
+    flex: 1;
+    min-width: 120px;
+}
+
+@media (max-width: 768px) {
+    .hint-buttons {
+        flex-direction: column;
+    }
+    
+    .hint-buttons button {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .hint-letters {
+        font-size: 20px;
+        letter-spacing: 2px;
+    }
+}

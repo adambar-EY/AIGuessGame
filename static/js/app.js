@@ -28,12 +28,21 @@ const translations = {
         facts_revealed: "Facts Revealed",
         click_get_hint: "Click \"Get Hint\" to reveal your first fact!",
         get_hint: "Get Hint",
+        get_letter_hint: "Get Letter Hint",
         whats_your_guess: "What's your guess?",
         type_your_answer: "Type your answer here...",
         submit: "Submit",
         new_round: "New Round",
         give_up: "Give Up",
         main_menu: "Main Menu",
+        
+        // Hint system
+        letter_hint: "Letter Hint",
+        hints_used: "Hints Used",
+        hints_remaining: "Hints Remaining",
+        letter_revealed: "Letter revealed!",
+        no_hints_left: "No hints left for this round",
+        no_more_letters: "No more letters to reveal",
 
         // Result modal
         congratulations: "Congratulations!",
@@ -155,10 +164,21 @@ const translations = {
         facts_revealed: "Odkryte Fakty",
         click_get_hint: "Kliknij \"Otrzymaj Wskazówkę\" aby odkryć pierwszy fakt!",
         get_hint: "Otrzymaj Wskazówkę",
+        get_letter_hint: "Otrzymaj Podpowiedź Literową",
         whats_your_guess: "Jaka jest twoja odpowiedź?",
         type_your_answer: "Wpisz tutaj swoją odpowiedź...",
         submit: "Wyślij",
         new_round: "Nowa Runda",
+        give_up: "Poddaj się",
+        main_menu: "Menu Główne",
+        
+        // Hint system
+        letter_hint: "Podpowiedź Literowa",
+        hints_used: "Użyte Podpowiedzi",
+        hints_remaining: "Pozostałe Podpowiedzi",
+        letter_revealed: "Litera ujawniona!",
+        no_hints_left: "Brak podpowiedzi na tę rundę",
+        no_more_letters: "Nie ma więcej liter do ujawnienia",
         give_up: "Poddaj Się",
         main_menu: "Menu Główne",
 
@@ -569,9 +589,14 @@ class GameApp {
         const newRoundBtn = document.getElementById('newRoundBtn');
         const giveUpBtn = document.getElementById('giveUpBtn');
         const backToMenuBtn = document.getElementById('backToMenuBtn');
+        const getLetterHintBtn = document.getElementById('getLetterHintBtn');
 
         getFactBtn.addEventListener('click', () => {
             this.requestFact();
+        });
+
+        getLetterHintBtn.addEventListener('click', () => {
+            this.getLetterHint();
         });
 
         guessInput.addEventListener('keypress', (e) => {
@@ -852,6 +877,12 @@ class GameApp {
 
         document.getElementById('totalFacts').textContent = data.facts_available;
 
+        // Initialize hint system
+        if (data.hints_available) {
+            document.getElementById('maxHints').textContent = data.hints_available;
+            document.getElementById('hintsUsed').textContent = data.hints_used || '0';
+        }
+
         // Update round progress display
         this.updateRoundProgress();
 
@@ -893,6 +924,15 @@ class GameApp {
         document.getElementById('getFactBtn').disabled = false;
         document.getElementById('submitGuessBtn').disabled = false;
         document.getElementById('newRoundBtn').style.display = 'none';
+        
+        // Reset hint system
+        document.getElementById('letterHintDisplay').style.display = 'none';
+        document.getElementById('hintLetters').textContent = '';
+        document.getElementById('hintsUsed').textContent = '0';
+        document.getElementById('maxHints').textContent = '3';
+        const letterHintBtn = document.getElementById('getLetterHintBtn');
+        letterHintBtn.disabled = false;
+        letterHintBtn.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
     }
 
     async requestFact() {
@@ -946,6 +986,60 @@ class GameApp {
         document.getElementById('getFactBtn').disabled = true;
         document.getElementById('getFactBtn').innerHTML = '<i class="fas fa-ban"></i> No More Hints';
         this.showToast(this.t('no_more_facts_available'), 'warning');
+    }
+
+    async getLetterHint() {
+        try {
+            const button = document.getElementById('getLetterHintBtn');
+            const originalText = button.innerHTML;
+            
+            // Disable button and show loading
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Hint...';
+
+            const response = await this.httpRequest('/api/get_hint', 'POST', {
+                session_id: this.gameSession,
+                language: this.currentLanguage
+            });
+
+            this.handleLetterHintResponse(response);
+
+        } catch (error) {
+            console.error('❌ Failed to get letter hint:', error);
+            this.showToast('Failed to get hint. Please try again.', 'error');
+        } finally {
+            setTimeout(() => {
+                const button = document.getElementById('getLetterHintBtn');
+                button.disabled = false;
+                button.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
+            }, 1000);
+        }
+    }
+
+    handleLetterHintResponse(data) {
+        if (data.success) {
+            // Show hint display
+            const hintDisplay = document.getElementById('letterHintDisplay');
+            const hintLetters = document.getElementById('hintLetters');
+            const hintsUsed = document.getElementById('hintsUsed');
+            const maxHints = document.getElementById('maxHints');
+
+            hintDisplay.style.display = 'block';
+            hintLetters.textContent = data.hint_display;
+            hintsUsed.textContent = data.hints_used;
+            maxHints.textContent = data.max_hints;
+
+            // Disable button if no more hints available
+            if (data.hints_remaining === 0) {
+                const button = document.getElementById('getLetterHintBtn');
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-ban"></i> No More Hints';
+            }
+
+            this.showToast(data.message, 'success');
+        } else {
+            this.showToast(data.message, 'warning');
+        }
     }
 
     async submitGuess() {

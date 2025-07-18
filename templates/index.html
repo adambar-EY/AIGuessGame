@@ -188,10 +188,28 @@
                                 </div>
                             </div>
 
-                            <button class="btn btn-secondary" id="getFactBtn" data-translate="get_hint">
-                                <i class="fas fa-eye"></i>
-                                Get Hint
-                            </button>
+                            <div class="hint-buttons">
+                                <button class="btn btn-secondary" id="getFactBtn" data-translate="get_hint">
+                                    <i class="fas fa-eye"></i>
+                                    Get Hint
+                                </button>
+                                <button class="btn btn-outline" id="getLetterHintBtn" data-translate="get_letter_hint">
+                                    <i class="fas fa-font"></i>
+                                    Get Letter Hint
+                                </button>
+                            </div>
+                            
+                            <!-- Letter Hint Display -->
+                            <div class="letter-hint-display" id="letterHintDisplay" style="display: none;">
+                                <div class="hint-header">
+                                    <i class="fas fa-lightbulb"></i>
+                                    <span data-translate="letter_hint">Letter Hint</span>
+                                </div>
+                                <div class="hint-letters" id="hintLetters"></div>
+                                <div class="hint-info">
+                                    <span data-translate="hints_used">Hints Used</span>: <span id="hintsUsed">0</span>/<span id="maxHints">3</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Guess Panel -->
