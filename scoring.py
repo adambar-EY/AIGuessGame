@@ -21,6 +21,7 @@ class GameRound:
     match_type: str  # "exact", "similar", "different"
     time_taken: float  # Time in seconds for the round
     round_score: int  # Points scored for this round
+    hints_used: int = 0  # Number of letter hints used
 
 @dataclass
 class GameSession:
@@ -47,8 +48,17 @@ class ScoringSystem:
         self.time_bonus_points = 200  # Bonus for quick answers
         self.streak_multiplier = 1.1  # Multiplier for consecutive wins
         
-    def calculate_round_score(self, round_result: GameRound) -> int:
-        """Calculate score for a single round"""
+        # Hint penalty system - varies by difficulty
+        self.hint_penalties = {
+            'very_easy': 50,    # Small penalty for beginners
+            'easy': 75,         # Light penalty
+            'normal': 100,      # Standard penalty
+            'hard': 125,        # Higher penalty for advanced players
+            'expert': 150       # Maximum penalty for experts
+        }
+        
+    def calculate_round_score(self, round_result: GameRound, difficulty: str = 'normal') -> int:
+        """Calculate score for a single round with hint penalties based on difficulty"""
         if not round_result.correct:
             return 0
         
@@ -61,6 +71,11 @@ class ScoringSystem:
         # Penalty for wrong guesses
         guess_penalty = round_result.guess_attempts * self.guess_penalty
         score -= guess_penalty
+        
+        # Penalty for letter hints used (varies by difficulty)
+        hint_penalty_per_hint = self.hint_penalties.get(difficulty, self.hint_penalties['normal'])
+        hint_penalty = round_result.hints_used * hint_penalty_per_hint
+        score -= hint_penalty
         
         # Bonus for exact matches
         if round_result.match_type == "exact":

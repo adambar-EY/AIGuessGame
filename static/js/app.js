@@ -43,6 +43,11 @@ const translations = {
         letter_revealed: "Letter revealed!",
         no_hints_left: "No hints left for this round",
         no_more_letters: "No more letters to reveal",
+        
+        // Scoring system
+        hint_penalty: "Hint Penalty",
+        points_per_hint: "points per hint",
+        total_hint_penalty: "Total Hint Penalty",
 
         // Result modal
         congratulations: "Congratulations!",
@@ -179,6 +184,12 @@ const translations = {
         letter_revealed: "Litera ujawniona!",
         no_hints_left: "Brak podpowiedzi na tę rundę",
         no_more_letters: "Nie ma więcej liter do ujawnienia",
+        
+        // Scoring system
+        hint_penalty: "Kara za Podpowiedzi",
+        points_per_hint: "punktów za podpowiedź",
+        total_hint_penalty: "Całkowita Kara za Podpowiedzi",
+
         give_up: "Poddaj Się",
         main_menu: "Menu Główne",
 
@@ -1029,6 +1040,16 @@ class GameApp {
             hintsUsed.textContent = data.hints_used;
             maxHints.textContent = data.max_hints;
 
+            // Update hint info with scoring details
+            const hintInfo = document.querySelector('.hint-info');
+            if (hintInfo && data.hint_penalty) {
+                hintInfo.innerHTML = `
+                    <span data-translate="hints_used">${this.t('hints_used')}</span>: <span id="hintsUsed">${data.hints_used}</span>/<span id="maxHints">${data.max_hints}</span><br>
+                    <span data-translate="hint_penalty">${this.t('hint_penalty')}</span>: ${data.hint_penalty} <span data-translate="points_per_hint">${this.t('points_per_hint')}</span><br>
+                    <span data-translate="total_hint_penalty">${this.t('total_hint_penalty')}</span>: ${data.total_hint_penalty} points
+                `;
+            }
+
             // Disable button if no more hints available
             if (data.hints_remaining === 0) {
                 const button = document.getElementById('getLetterHintBtn');
@@ -1036,7 +1057,12 @@ class GameApp {
                 button.innerHTML = '<i class="fas fa-ban"></i> No More Hints';
             }
 
-            this.showToast(data.message, 'success');
+            // Show enhanced message with scoring info
+            let message = data.message;
+            if (data.hint_penalty) {
+                message += ` (-${data.hint_penalty} points)`;
+            }
+            this.showToast(message, 'success');
         } else {
             this.showToast(data.message, 'warning');
         }

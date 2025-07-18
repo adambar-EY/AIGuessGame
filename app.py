@@ -924,12 +924,14 @@ class WebGameSession:
             similarity_score=similarity,
             match_type=match_type,
             time_taken=time_taken,
-            round_score=0
+            round_score=0,
+            hints_used=self.hints_used
         )
 
     def _calculate_and_apply_score(self, round_obj: GameRound) -> None:
-        """Calculate score with difficulty multiplier and apply it"""
-        base_score = scoring_system.calculate_round_score(round_obj)
+        """Calculate score with difficulty multiplier and hint penalties"""
+        difficulty_name = self.difficulty.get('name', 'normal') if self.difficulty else 'normal'
+        base_score = scoring_system.calculate_round_score(round_obj, difficulty_name)
         
         if self.difficulty and 'score_multiplier' in self.difficulty:
             round_obj.round_score = int(base_score * self.difficulty['score_multiplier'])
@@ -1340,6 +1342,13 @@ def handle_get_hint():
         
         game_session = active_sessions[session_id]
         hint_result = game_session.get_hint()
+        
+        # Add scoring information to the hint result
+        if hint_result.get('success', False):
+            difficulty_name = game_session.difficulty.get('name', 'normal') if game_session.difficulty else 'normal'
+            hint_penalty = scoring_system.hint_penalties.get(difficulty_name, scoring_system.hint_penalties['normal'])
+            hint_result['hint_penalty'] = hint_penalty
+            hint_result['total_hint_penalty'] = hint_penalty * game_session.hints_used
         
         return jsonify(hint_result)
             
