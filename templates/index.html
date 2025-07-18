@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 AI Guessing Game</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Background Animation -->
+    <div class="bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+        <div class="floating-shape shape-5"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">
+                <i class="fas fa-brain"></i>
+                <span>AI Guessing Game</span>
+            </h1>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <select id="headerLanguageSelect" class="language-select">
+                        <option value="en">🇺🇸 English</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                    </select>
+                </div>
+                <button class="btn btn-outline" id="leaderboardBtn" data-translate="leaderboard">
+                    <i class="fas fa-trophy"></i>
+                    Leaderboard
+                </button>
+                <button class="btn btn-outline" id="statsBtn" data-translate="my_stats">
+                    <i class="fas fa-chart-bar"></i>
+                    My Stats
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="screen active">
+                <div class="welcome-card">
+                    <div class="welcome-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h2 data-translate="welcome_title">Welcome to the AI Guessing Game!</h2>
+                    <p class="welcome-description" data-translate="welcome_description">
+                        Test your knowledge across multiple categories. Get facts one by one and guess the answer.
+                        The fewer facts you need, the higher your score!
+                    </p>
+
+                    <div class="player-setup">
+                        <div class="input-group">
+                            <label for="playerName" data-translate="your_name">Your Name</label>
+                            <input type="text" id="playerName" data-translate-placeholder="enter_your_name"
+                                placeholder="Enter your name" maxlength="50">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="categorySelect" data-translate="choose_category_optional">Choose Category
+                                (Optional)</label>
+                            <select id="categorySelect">
+                                <option value="" data-translate="loading_categories">Loading categories...</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="difficultySelect" data-translate="difficulty_level">Difficulty Level</label>
+                            <select id="difficultySelect">
+                                <option value="normal" data-translate="loading_difficulties">Loading difficulties...
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="roundsSelect" data-translate="number_of_rounds">Number of Rounds</label>
+                            <select id="roundsSelect">
+                                <option value="" data-translate="unlimited_rounds">♾️ Unlimited Rounds</option>
+                                <option value="1" data-translate="one_round">1 Round</option>
+                                <option value="3" data-translate="three_rounds">3 Rounds</option>
+                                <option value="5" data-translate="five_rounds">5 Rounds</option>
+                                <option value="10" data-translate="ten_rounds">10 Rounds</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group" style="display: none;">
+                            <label for="languageSelect" data-translate="language">Language</label>
+                            <select id="languageSelect">
+                                <option value="en">🇺🇸 English</option>
+                                <option value="pl">🇵🇱 Polski</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary btn-large" id="startGameBtn" data-translate="start_game">
+                            <i class="fas fa-play"></i>
+                            Start Game
+                        </button>
+
+                        <!-- Offline Mode Section -->
+                        <div class="offline-mode-section">
+                            <div class="mode-separator">
+                                <span data-translate="or">or</span>
+                            </div>
+
+                            <div id="offlineStatus" class="offline-status" data-translate="offline_status_checking">
+                                Checking offline availability...
+                            </div>
+
+                            <button class="btn btn-secondary btn-large" id="startOfflineGameBtn"
+                                data-translate="start_offline_game" disabled>
+                                <i class="fas fa-database"></i>
+                                Start Offline Game
+                            </button>
+
+                            <p class="offline-info">
+                                <i class="fas fa-info-circle"></i>
+                                <span data-translate="offline_mode_info">Offline mode uses previously generated
+                                    questions from the database.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="gameScreen" class="screen">
+                <div class="game-layout">
+                    <!-- Game Header -->
+                    <div class="game-header">
+                        <div class="player-info">
+                            <div class="player-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h3 id="currentPlayer">Player</h3>
+                                <p class="current-category"><span data-translate="category">Category</span>: <span
+                                        id="currentCategory">-</span></p>
+                            </div>
+                        </div>
+
+                        <div class="score-display">
+                            <div class="score-item">
+                                <span class="score-label" data-translate="round_score">Round Score</span>
+                                <span class="score-value" id="roundScore">0</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label" data-translate="total_score">Total Score</span>
+                                <span class="score-value" id="totalScore">0</span>
+                            </div>
+                            <div class="score-item" id="roundProgressDisplay" style="display: none;">
+                                <span class="score-label" data-translate="round_progress">Round Progress</span>
+                                <span class="score-value" id="roundProgress">1/5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Content -->
+                    <div class="game-content">
+                        <!-- Facts Panel -->
+                        <div class="facts-panel">
+                            <div class="facts-header">
+                                <h4>
+                                    <i class="fas fa-lightbulb"></i>
+                                    <span data-translate="facts_revealed">Facts Revealed</span>
+                                </h4>
+                                <div class="facts-counter">
+                                    <span id="factsShown">0</span>/<span id="totalFacts">5</span>
+                                </div>
+                            </div>
+
+                            <div class="facts-list" id="factsList">
+                                <div class="no-facts">
+                                    <i class="fas fa-question-circle"></i>
+                                    <p data-translate="click_get_hint">Click "Get Hint" to reveal your first fact!</p>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-secondary" id="getFactBtn" data-translate="get_hint">
+                                <i class="fas fa-eye"></i>
+                                Get Hint
+                            </button>
+                        </div>
+
+                        <!-- Guess Panel -->
+                        <div class="guess-panel">
+                            <div class="guess-form">
+                                <h4>
+                                    <i class="fas fa-thinking"></i>
+                                    <span data-translate="whats_your_guess">What's your guess?</span>
+                                </h4>
+
+                                <div class="input-group">
+                                    <input type="text" id="guessInput" data-translate-placeholder="type_your_answer"
+                                        placeholder="Type your answer here..." maxlength="100">
+                                    <button class="btn btn-primary" id="submitGuessBtn" data-translate="submit">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Submit
+                                    </button>
+                                </div>
+
+                                <div class="guess-history" id="guessHistory"></div>
+                            </div>
+
+                            <!-- Game Controls -->
+                            <div class="game-controls">
+                                <button class="btn btn-outline" id="newRoundBtn" style="display: none;"
+                                    data-translate="new_round">
+                                    <i class="fas fa-refresh"></i>
+                                    New Round
+                                </button>
+                                <button class="btn btn-ghost" id="giveUpBtn" data-translate="give_up">
+                                    <i class="fas fa-flag"></i>
+                                    Give Up
+                                </button>
+                                <button class="btn btn-ghost" id="backToMenuBtn" data-translate="main_menu">
+                                    <i class="fas fa-home"></i>
+                                    Main Menu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Modal -->
+            <div id="resultModal" class="modal">
+                <div class="modal-content">
+                    <div class="result-content">
+                        <div class="result-icon" id="resultIcon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 id="resultTitle" data-translate="congratulations">Congratulations!</h3>
+                        <p id="resultMessage" data-translate="you_got_it_right">You got it right!</p>
+
+                        <div class="result-stats">
+                            <div class="stat-item">
+                                <span class="stat-label" data-translate="answer">Answer</span>
+                                <span class="stat-value" id="correctAnswer">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label" data-translate="round_score">Round Score</span>
+                                <span class="stat-value" id="finalRoundScore">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label" data-translate="time_taken">Time Taken</span>
+                                <span class="stat-value" id="timeTaken">0s</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label" data-translate="facts_used">Facts Used</span>
+                                <span class="stat-value" id="factsUsed">0</span>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn btn-primary" id="playAgainBtn" data-translate="play_again">
+                                <i class="fas fa-play"></i>
+                                Play Again
+                            </button>
+                            <button class="btn btn-outline" id="changePlayerBtn" data-translate="change_player">
+                                <i class="fas fa-user-edit"></i>
+                                Change Player
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Modal -->
+            <div id="leaderboardModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 data-translate="global_leaderboard">
+                            <i class="fas fa-trophy"></i>
+                            Global Leaderboard
+                        </h3>
+                        <button class="close-btn" data-modal="leaderboardModal">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="leaderboardContent" class="leaderboard-content">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span data-translate="loading_leaderboard">Loading leaderboard...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Modal -->
+            <div id="statsModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 data-translate="player_statistics">
+                            <i class="fas fa-chart-bar"></i>
+                            Player Statistics
+                        </h3>
+                        <button class="close-btn" data-modal="statsModal">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="statsContent" class="stats-content">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span data-translate="loading_statistics">Loading statistics...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 AI Guessing Game. Made with ❤️ and AI.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <!-- Emergency button fix -->
+    <script>
+        // Emergency validation override
+        function emergencyButtonFix() {
+            const nameInput = document.getElementById('playerName');
+            const startBtn = document.getElementById('startGameBtn');
+
+            if (nameInput && startBtn) {
+                const hasName = nameInput.value.trim().length > 0;
+
+                if (hasName) {
+                    // Aggressive button enabling
+                    startBtn.disabled = false;
+                    startBtn.removeAttribute('disabled');
+                    startBtn.style.opacity = '1';
+                    startBtn.style.cursor = 'pointer';
+                    startBtn.style.pointerEvents = 'auto';
+                    startBtn.style.backgroundColor = '';
+                    startBtn.classList.remove('disabled');
+
+                    // Remove any inline styles that might disable it
+                    if (startBtn.style.display === 'none') {
+                        startBtn.style.display = '';
+                    }
+
+                    console.log('✅ Button enabled - Name provided');
+                } else {
+                    startBtn.disabled = true;
+                    startBtn.setAttribute('disabled', 'disabled');
+                    // Only log when name is actually cleared, not on every check
+                    if (nameInput.value === '') {
+                        console.log('❌ Button disabled - Name required');
+                    }
+                }
+            }
+        }
+
+        // Run validation only on DOM ready and input events
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(emergencyButtonFix, 1000);
+
+            // Add event listeners - only for name input changes
+            const nameInput = document.getElementById('playerName');
+
+            if (nameInput) {
+                nameInput.addEventListener('input', emergencyButtonFix);
+                nameInput.addEventListener('keyup', emergencyButtonFix);
+                nameInput.addEventListener('change', emergencyButtonFix);
+                nameInput.addEventListener('paste', function () {
+                    // Small delay to ensure paste content is processed
+                    setTimeout(emergencyButtonFix, 50);
+                });
+            }
+        });
+    </script>
+
+    <!-- Main App JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>

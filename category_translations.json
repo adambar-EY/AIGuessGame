@@ -1,0 +1,210 @@
+{
+    "category_translations": {
+        "pl": {
+            "animals": {
+                "name": "zwierzęta",
+                "description": "Żywe stworzenia z całego świata"
+            },
+            "food": {
+                "name": "jedzenie",
+                "description": "Potrawy, składniki i elementy kulinarne"
+            },
+            "technology": {
+                "name": "technologia",
+                "description": "Nowoczesne i historyczne przedmioty technologiczne"
+            },
+            "movies": {
+                "name": "filmy",
+                "description": "Znane filmy i kino"
+            },
+            "music": {
+                "name": "muzyka",
+                "description": "Instrumenty muzyczne, gatunki i artyści"
+            },
+            "sports": {
+                "name": "sport",
+                "description": "Aktywności sportowe i zawody"
+            },
+            "countries": {
+                "name": "kraje",
+                "description": "Narody i ich charakterystyki"
+            },
+            "cities": {
+                "name": "miasta",
+                "description": "Centra miejskie na całym świecie"
+            },
+            "historical figures": {
+                "name": "postacie_historyczne",
+                "description": "Ważne osoby z historii"
+            },
+            "science": {
+                "name": "nauka",
+                "description": "Koncepcje i odkrycia naukowe"
+            },
+            "books": {
+                "name": "książki",
+                "description": "Literatura i znane publikacje"
+            },
+            "games": {
+                "name": "gry",
+                "description": "Gry planszowe, video gry i aktywności rekreacyjne"
+            },
+            "mythology": {
+                "name": "mitologia",
+                "description": "Mityczne stworzenia i legendy"
+            },
+            "space": {
+                "name": "kosmos",
+                "description": "Ciała niebieskie i eksploracja kosmosu"
+            },
+            "vehicles": {
+                "name": "pojazdy",
+                "description": "Środki transportu i maszyny"
+            },
+            "clothing": {
+                "name": "ubrania",
+                "description": "Odzież i przedmioty mody"
+            },
+            "household items": {
+                "name": "przedmioty_domowe",
+                "description": "Powszechne przedmioty znajdowane w domach"
+            },
+            "professions": {
+                "name": "zawody",
+                "description": "Prace i ścieżki kariery"
+            },
+            "hobbies": {
+                "name": "hobby",
+                "description": "Aktywności rekreacyjne i zajęcia"
+            },
+            "emotions": {
+                "name": "emocje",
+                "description": "Ludzkie uczucia i stany umysłu"
+            },
+            "weather": {
+                "name": "pogoda",
+                "description": "Zjawiska meteorologiczne"
+            },
+            "colors": {
+                "name": "kolory",
+                "description": "Odcienie, cienie i koncepcje kolorów"
+            },
+            "shapes": {
+                "name": "kształty",
+                "description": "Formy geometryczne i wzory"
+            },
+            "plants": {
+                "name": "rośliny",
+                "description": "Flora i okazy botaniczne"
+            },
+            "landmarks": {
+                "name": "zabytki",
+                "description": "Znane struktury i pomniki"
+            },
+            "materials": {
+                "name": "materiały",
+                "description": "Substancje i materiały budowlane"
+            },
+            "art styles": {
+                "name": "style_artystyczne",
+                "description": "Ruchy artystyczne i techniki"
+            },
+            "festivals": {
+                "name": "festiwale",
+                "description": "Kulturalne święta i wydarzenia"
+            },
+            "languages": {
+                "name": "języki",
+                "description": "Języki świata i koncepcje językowe"
+            },
+            "currencies": {
+                "name": "waluty",
+                "description": "Pieniądze i systemy finansowe"
+            },
+            "gemstones": {
+                "name": "kamienie_szlachetne",
+                "description": "Kamienie szlachetne i półszlachetne"
+            },
+            "dance": {
+                "name": "taniec",
+                "description": "Style tańca i ruchy"
+            },
+            "medical": {
+                "name": "medycyna",
+                "description": "Zdrowie i koncepcje medyczne"
+            },
+            "tools": {
+                "name": "narzędzia",
+                "description": "Instrumenty i przyrządy"
+            },
+            "toys": {
+                "name": "zabawki",
+                "description": "Zabawki i przedmioty rekreacyjne"
+            },
+            "insects": {
+                "name": "owady",
+                "description": "Robaki i pełzające stworzenia"
+            },
+            "furniture": {
+                "name": "meble",
+                "description": "Meble domowe i biurowe"
+            },
+            "desserts": {
+                "name": "desery",
+                "description": "Słodkie przysmaki i cukierki"
+            },
+            "beverages": {
+                "name": "napoje",
+                "description": "Napoje i płynne orzeźwienia"
+            },
+            "electronics": {
+                "name": "elektronika",
+                "description": "Urządzenia elektroniczne i komponenty"
+            },
+            "instruments": {
+                "name": "instrumenty",
+                "description": "Instrumenty muzyczne z całego świata"
+            },
+            "architecture": {
+                "name": "architektura",
+                "description": "Style budowlane i elementy strukturalne"
+            },
+            "geography": {
+                "name": "geografia",
+                "description": "Fizyczne cechy Ziemi"
+            },
+            "transportation": {
+                "name": "transport",
+                "description": "Metody przewożenia ludzi i towarów"
+            },
+            "communication": {
+                "name": "komunikacja",
+                "description": "Metody dzielenia się informacjami"
+            },
+            "energy": {
+                "name": "energia",
+                "description": "Źródła energii i koncepcje energetyczne"
+            },
+            "education": {
+                "name": "edukacja",
+                "description": "Nauka i koncepcje akademickie"
+            },
+            "religion": {
+                "name": "religia",
+                "description": "Duchowe wierzenia i praktyki"
+            },
+            "philosophy": {
+                "name": "filozofia",
+                "description": "Koncepcje filozoficzne i myśliciele"
+            },
+            "psychology": {
+                "name": "psychologia",
+                "description": "Procesy umysłowe i zachowanie"
+            },
+            "economics": {
+                "name": "ekonomia",
+                "description": "Koncepcje finansowe i ekonomiczne"
+            }
+        }
+    }
+}

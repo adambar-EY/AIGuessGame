@@ -1,0 +1,660 @@
+{
+    "categories": [
+        {
+            "name": "animals",
+            "description": "Living creatures from around the world",
+            "name_pl": "zwierzęta",
+            "description_pl": "Żywe stworzenia z całego świata",
+            "examples": [
+                "mammals",
+                "birds",
+                "reptiles",
+                "sea creatures",
+                "insects"
+            ]
+        },
+        {
+            "name": "food",
+            "description": "Dishes, ingredients, and culinary items",
+            "name_pl": "jedzenie",
+            "description_pl": "Potrawy, składniki i artykuły kulinarne",
+            "examples": [
+                "fruits",
+                "vegetables",
+                "desserts",
+                "international cuisine",
+                "beverages"
+            ]
+        },
+        {
+            "name": "technology",
+            "description": "Modern and historical technological items",
+            "name_pl": "technologia",
+            "description_pl": "Nowoczesne i historyczne przedmioty technologiczne",
+            "examples": [
+                "gadgets",
+                "software",
+                "inventions",
+                "communication devices",
+                "transportation"
+            ]
+        },
+        {
+            "name": "movies",
+            "description": "Famous films and cinema",
+            "name_pl": "filmy",
+            "description_pl": "Znane filmy i kino",
+            "examples": [
+                "classic movies",
+                "animated films",
+                "action movies",
+                "comedies",
+                "sci-fi"
+            ]
+        },
+        {
+            "name": "music",
+            "description": "Musical instruments, genres, and artists",
+            "name_pl": "muzyka",
+            "description_pl": "Instrumenty muzyczne, gatunki i artyści",
+            "examples": [
+                "instruments",
+                "genres",
+                "famous songs",
+                "music theory",
+                "composers"
+            ]
+        },
+        {
+            "name": "sports",
+            "description": "Athletic activities and competitions",
+            "examples": [
+                "team sports",
+                "individual sports",
+                "olympic events",
+                "extreme sports",
+                "equipment"
+            ],
+            "name_pl": "sport",
+            "description_pl": "Dyscypliny sportowe i sportowcy"
+        },
+        {
+            "name": "countries",
+            "description": "Nations and their characteristics",
+            "examples": [
+                "european countries",
+                "asian countries",
+                "capitals",
+                "cultures",
+                "landmarks"
+            ],
+            "name_pl": "kraje",
+            "description_pl": "Narody i ich charakterystyki"
+        },
+        {
+            "name": "cities",
+            "description": "Urban centers around the world",
+            "examples": [
+                "world capitals",
+                "tourist destinations",
+                "historic cities",
+                "modern metropolises"
+            ],
+            "name_pl": "miasta",
+            "description_pl": "Centra miejskie na całym świecie"
+        },
+        {
+            "name": "historical figures",
+            "description": "Important people from history",
+            "examples": [
+                "leaders",
+                "inventors",
+                "artists",
+                "scientists",
+                "explorers"
+            ],
+            "name_pl": "postacie historyczne",
+            "description_pl": "Ważne osoby z historii"
+        },
+        {
+            "name": "science",
+            "description": "Scientific concepts and discoveries",
+            "examples": [
+                "physics",
+                "chemistry",
+                "biology",
+                "astronomy",
+                "mathematics"
+            ],
+            "name_pl": "nauka",
+            "description_pl": "Odkrycia naukowe i zjawiska"
+        },
+        {
+            "name": "books",
+            "description": "Literature and famous publications",
+            "examples": [
+                "classic novels",
+                "children's books",
+                "non-fiction",
+                "poetry",
+                "genres"
+            ],
+            "name_pl": "książki",
+            "description_pl": "Literatura i znane publikacje"
+        },
+        {
+            "name": "games",
+            "description": "Board games, video games, and recreational activities",
+            "examples": [
+                "board games",
+                "card games",
+                "video games",
+                "puzzle games",
+                "party games"
+            ],
+            "name_pl": "gry",
+            "description_pl": "Gry planszowe, video i aktywności rekreacyjne"
+        },
+        {
+            "name": "mythology",
+            "description": "Mythological creatures and legends",
+            "examples": [
+                "greek mythology",
+                "norse mythology",
+                "creatures",
+                "gods",
+                "legends"
+            ],
+            "name_pl": "mitologia",
+            "description_pl": "Mitologiczne stworzenia i legendy"
+        },
+        {
+            "name": "space",
+            "description": "Celestial bodies and space exploration",
+            "examples": [
+                "planets",
+                "stars",
+                "galaxies",
+                "spacecraft",
+                "astronauts"
+            ],
+            "name_pl": "kosmos",
+            "description_pl": "Ciała niebieskie i eksploracja kosmosu"
+        },
+        {
+            "name": "vehicles",
+            "description": "Transportation methods and machines",
+            "examples": [
+                "cars",
+                "aircraft",
+                "ships",
+                "trains",
+                "motorcycles"
+            ],
+            "name_pl": "pojazdy",
+            "description_pl": "Środki transportu i maszyny"
+        },
+        {
+            "name": "clothing",
+            "description": "Apparel and fashion items",
+            "examples": [
+                "formal wear",
+                "casual wear",
+                "accessories",
+                "shoes",
+                "cultural clothing"
+            ],
+            "name_pl": "odzież",
+            "description_pl": "Ubrania i elementy mody"
+        },
+        {
+            "name": "household items",
+            "description": "Common objects found in homes",
+            "examples": [
+                "kitchen items",
+                "furniture",
+                "appliances",
+                "decorations",
+                "tools"
+            ],
+            "name_pl": "przedmioty domowe",
+            "description_pl": "Powszechne przedmioty znajdowane w domach"
+        },
+        {
+            "name": "professions",
+            "description": "Jobs and career paths",
+            "examples": [
+                "medical",
+                "education",
+                "creative",
+                "technical",
+                "service"
+            ],
+            "name_pl": "zawody",
+            "description_pl": "Prace i ścieżki kariery"
+        },
+        {
+            "name": "hobbies",
+            "description": "Recreational activities and pastimes",
+            "examples": [
+                "crafts",
+                "collecting",
+                "outdoor activities",
+                "creative pursuits",
+                "sports"
+            ],
+            "name_pl": "hobby",
+            "description_pl": "Aktywności rekreacyjne i rozrywki"
+        },
+        {
+            "name": "emotions",
+            "description": "Human feelings and states of mind",
+            "examples": [
+                "basic emotions",
+                "complex feelings",
+                "moods",
+                "psychological states"
+            ],
+            "name_pl": "emocje",
+            "description_pl": "Ludzkie uczucia i stany umysłu"
+        },
+        {
+            "name": "weather",
+            "description": "Meteorological phenomena",
+            "examples": [
+                "precipitation",
+                "storms",
+                "atmospheric conditions",
+                "seasons",
+                "climate"
+            ],
+            "name_pl": "pogoda",
+            "description_pl": "Zjawiska meteorologiczne"
+        },
+        {
+            "name": "colors",
+            "description": "Hues, shades, and color concepts",
+            "examples": [
+                "primary colors",
+                "secondary colors",
+                "shades",
+                "tints",
+                "color theory"
+            ],
+            "name_pl": "kolory",
+            "description_pl": "Odcienie, barwy i koncepcje kolorów"
+        },
+        {
+            "name": "shapes",
+            "description": "Geometric forms and patterns",
+            "examples": [
+                "2d shapes",
+                "3d shapes",
+                "geometric patterns",
+                "mathematical forms"
+            ],
+            "name_pl": "kształty",
+            "description_pl": "Formy geometryczne i wzory"
+        },
+        {
+            "name": "plants",
+            "description": "Flora and botanical specimens",
+            "examples": [
+                "flowers",
+                "trees",
+                "herbs",
+                "vegetables",
+                "exotic plants"
+            ],
+            "name_pl": "rośliny",
+            "description_pl": "Flora i okazy botaniczne"
+        },
+        {
+            "name": "landmarks",
+            "description": "Famous structures and monuments",
+            "examples": [
+                "ancient wonders",
+                "modern architecture",
+                "natural landmarks",
+                "cultural sites"
+            ],
+            "name_pl": "zabytki",
+            "description_pl": "Znane struktury i pomniki"
+        },
+        {
+            "name": "materials",
+            "description": "Substances and construction materials",
+            "examples": [
+                "metals",
+                "fabrics",
+                "building materials",
+                "natural materials",
+                "composites"
+            ],
+            "name_pl": "materiały",
+            "description_pl": "Substancje i materiały budowlane"
+        },
+        {
+            "name": "art styles",
+            "description": "Artistic movements and techniques",
+            "examples": [
+                "painting styles",
+                "sculpture",
+                "architecture",
+                "design movements",
+                "periods"
+            ],
+            "name_pl": "style artystyczne",
+            "description_pl": "Ruchy artystyczne i techniki"
+        },
+        {
+            "name": "festivals",
+            "description": "Cultural celebrations and events",
+            "examples": [
+                "religious festivals",
+                "cultural events",
+                "seasonal celebrations",
+                "international festivals"
+            ],
+            "name_pl": "festiwale",
+            "description_pl": "Uroczystości kulturalne i wydarzenia"
+        },
+        {
+            "name": "languages",
+            "description": "World languages and linguistic concepts",
+            "examples": [
+                "major languages",
+                "language families",
+                "writing systems",
+                "linguistic features"
+            ],
+            "name_pl": "języki",
+            "description_pl": "Języki świata i koncepcje językoznawcze"
+        },
+        {
+            "name": "currencies",
+            "description": "Money and financial systems",
+            "examples": [
+                "world currencies",
+                "historical money",
+                "cryptocurrency",
+                "economic concepts"
+            ],
+            "name_pl": "waluty",
+            "description_pl": "Pieniądze i systemy finansowe"
+        },
+        {
+            "name": "gemstones",
+            "description": "Precious and semi-precious stones",
+            "examples": [
+                "precious gems",
+                "birthstones",
+                "crystals",
+                "minerals",
+                "jewelry"
+            ],
+            "name_pl": "kamienie szlachetne",
+            "description_pl": "Kamienie szlachetne i półszlachetne"
+        },
+        {
+            "name": "dance",
+            "description": "Dance styles and movements",
+            "examples": [
+                "ballroom",
+                "folk dance",
+                "modern dance",
+                "cultural dances",
+                "performance"
+            ],
+            "name_pl": "taniec",
+            "description_pl": "Style tańca i ruchy"
+        },
+        {
+            "name": "medical",
+            "description": "Health and medical concepts",
+            "examples": [
+                "body parts",
+                "medical conditions",
+                "treatments",
+                "medical equipment",
+                "health"
+            ],
+            "name_pl": "medycyna",
+            "description_pl": "Zdrowie i koncepcje medyczne"
+        },
+        {
+            "name": "tools",
+            "description": "Instruments and implements",
+            "examples": [
+                "hand tools",
+                "power tools",
+                "precision instruments",
+                "measuring devices",
+                "workshop tools"
+            ],
+            "name_pl": "narzędzia",
+            "description_pl": "Instrumenty i przybory"
+        },
+        {
+            "name": "toys",
+            "description": "Playthings and recreational items",
+            "examples": [
+                "classic toys",
+                "modern toys",
+                "educational toys",
+                "outdoor toys",
+                "collectibles"
+            ],
+            "name_pl": "zabawki",
+            "description_pl": "Przedmioty do zabawy i rekreacji"
+        },
+        {
+            "name": "insects",
+            "description": "Bugs and creepy crawlies",
+            "examples": [
+                "flying insects",
+                "crawling insects",
+                "beneficial insects",
+                "pest insects",
+                "exotic insects"
+            ],
+            "name_pl": "owady",
+            "description_pl": "Robaki i pełzające stworzenia"
+        },
+        {
+            "name": "furniture",
+            "description": "Home and office furnishings",
+            "examples": [
+                "seating",
+                "tables",
+                "storage",
+                "bedroom furniture",
+                "office furniture"
+            ],
+            "name_pl": "meble",
+            "description_pl": "Wyposażenie domu i biura"
+        },
+        {
+            "name": "desserts",
+            "description": "Sweet treats and confections",
+            "examples": [
+                "cakes",
+                "cookies",
+                "ice cream",
+                "pastries",
+                "international sweets"
+            ],
+            "name_pl": "desery",
+            "description_pl": "Słodkie przysmaki i słodycze"
+        },
+        {
+            "name": "beverages",
+            "description": "Drinks and liquid refreshments",
+            "examples": [
+                "hot drinks",
+                "cold drinks",
+                "alcoholic beverages",
+                "juices",
+                "specialty drinks"
+            ],
+            "name_pl": "napoje",
+            "description_pl": "Napoje i płynne orzeźwienia"
+        },
+        {
+            "name": "electronics",
+            "description": "Electronic devices and components",
+            "examples": [
+                "consumer electronics",
+                "computer parts",
+                "audio equipment",
+                "mobile devices",
+                "home electronics"
+            ],
+            "name_pl": "elektronika",
+            "description_pl": "Urządzenia elektroniczne i komponenty"
+        },
+        {
+            "name": "instruments",
+            "description": "Musical instruments from around the world",
+            "examples": [
+                "string instruments",
+                "wind instruments",
+                "percussion",
+                "keyboard instruments",
+                "electronic instruments"
+            ],
+            "name_pl": "instrumenty",
+            "description_pl": "Instrumenty muzyczne z całego świata"
+        },
+        {
+            "name": "architecture",
+            "description": "Building styles and structural elements",
+            "examples": [
+                "architectural styles",
+                "building types",
+                "structural elements",
+                "design features",
+                "historical periods"
+            ],
+            "name_pl": "architektura",
+            "description_pl": "Style budowlane i elementy strukturalne"
+        },
+        {
+            "name": "geography",
+            "description": "Physical features of the Earth",
+            "examples": [
+                "landforms",
+                "water bodies",
+                "climate zones",
+                "natural phenomena",
+                "ecosystems"
+            ],
+            "name_pl": "geografia",
+            "description_pl": "Fizyczne cechy Ziemi"
+        },
+        {
+            "name": "transportation",
+            "description": "Methods of moving people and goods",
+            "examples": [
+                "land transport",
+                "air transport",
+                "water transport",
+                "public transport",
+                "future transport"
+            ],
+            "name_pl": "transport",
+            "description_pl": "Metody przemieszczania ludzi i towarów"
+        },
+        {
+            "name": "communication",
+            "description": "Methods of sharing information",
+            "examples": [
+                "traditional methods",
+                "modern technology",
+                "written communication",
+                "verbal communication",
+                "digital communication"
+            ],
+            "name_pl": "komunikacja",
+            "description_pl": "Metody dzielenia się informacjami"
+        },
+        {
+            "name": "energy",
+            "description": "Power sources and energy concepts",
+            "examples": [
+                "renewable energy",
+                "fossil fuels",
+                "nuclear energy",
+                "energy storage",
+                "energy efficiency"
+            ],
+            "name_pl": "energia",
+            "description_pl": "Źródła energii i koncepcje energetyczne"
+        },
+        {
+            "name": "education",
+            "description": "Learning and academic concepts",
+            "examples": [
+                "subjects",
+                "educational tools",
+                "institutions",
+                "learning methods",
+                "academic disciplines"
+            ],
+            "name_pl": "edukacja",
+            "description_pl": "Nauka i koncepcje akademickie"
+        },
+        {
+            "name": "religion",
+            "description": "Spiritual beliefs and practices",
+            "examples": [
+                "world religions",
+                "religious practices",
+                "sacred texts",
+                "religious symbols",
+                "spiritual concepts"
+            ],
+            "name_pl": "religia",
+            "description_pl": "Wierzenia duchowe i praktyki"
+        },
+        {
+            "name": "philosophy",
+            "description": "Philosophical concepts and thinkers",
+            "examples": [
+                "philosophical schools",
+                "ethical concepts",
+                "logical principles",
+                "famous philosophers",
+                "philosophical questions"
+            ],
+            "name_pl": "filozofia",
+            "description_pl": "Koncepcje filozoficzne i myśliciele"
+        },
+        {
+            "name": "psychology",
+            "description": "Mental processes and behavior",
+            "examples": [
+                "cognitive processes",
+                "personality traits",
+                "psychological disorders",
+                "therapy methods",
+                "behavioral concepts"
+            ],
+            "name_pl": "psychologia",
+            "description_pl": "Procesy mentalne i zachowanie"
+        },
+        {
+            "name": "economics",
+            "description": "Financial and economic concepts",
+            "examples": [
+                "economic systems",
+                "market concepts",
+                "financial instruments",
+                "economic theories",
+                "business concepts"
+            ],
+            "name_pl": "ekonomia",
+            "description_pl": "Koncepcje finansowe i ekonomiczne"
+        }
+    ]
+}

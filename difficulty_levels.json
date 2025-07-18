@@ -1,0 +1,44 @@
+{
+    "difficulty_levels": {
+        "very_easy": {
+            "name": "very_easy",
+            "score_multiplier": 0.8,
+            "pl_name": "bardzo łatwy",
+            "pl_desc": "Najłatwiejsze zagadki z oczywistymi wskazówkami, zmniejszone punktowanie",
+            "en_desc": "Easiest puzzles with very obvious clues, reduced scoring",
+            "prompt_hint": "Make the facts extremely obvious and straightforward, with very clear hints from the beginning. Perfect for children or absolute beginners."
+        },
+        "easy": {
+            "name": "easy",
+            "score_multiplier": 1.0,
+            "pl_name": "łatwy",
+            "pl_desc": "Prostsze zagadki, normalne punktowanie",
+            "en_desc": "Simpler puzzles, normal scoring",
+            "prompt_hint": "Make the facts very straightforward and obvious, suitable for beginners."
+        },
+        "normal": {
+            "name": "normal",
+            "score_multiplier": 1.2,
+            "pl_name": "normalny",
+            "pl_desc": "Standardowy poziom zagadek, zwiększone punktowanie",
+            "en_desc": "Standard puzzle difficulty, increased scoring",
+            "prompt_hint": "Balance the facts between obvious and subtle hints, suitable for average players."
+        },
+        "hard": {
+            "name": "hard",
+            "score_multiplier": 1.5,
+            "pl_name": "trudny",
+            "pl_desc": "Bardziej wymagające zagadki, znacznie zwiększone punktowanie",
+            "en_desc": "More challenging puzzles, significantly increased scoring",
+            "prompt_hint": "Make the facts more subtle and clever, requiring good deduction skills. Avoid very obvious hints until the final fact."
+        },
+        "expert": {
+            "name": "expert",
+            "score_multiplier": 2.0,
+            "pl_name": "ekspert",
+            "pl_desc": "Najtrudniejsze zagadki z zawoalowanymi wskazówkami, maksymalne punktowanie",
+            "en_desc": "Hardest puzzles with cryptic clues, maximum scoring",
+            "prompt_hint": "Make the facts very cryptic, abstract, and challenging. Use metaphors, indirect references, and require deep thinking. Only the final fact should be somewhat direct."
+        }
+    }
+}
