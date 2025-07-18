@@ -1356,6 +1356,37 @@ def handle_get_hint():
         logger.error(f"Error getting hint: {e}")
         return jsonify({'error': 'Failed to get hint'}), 500
 
+@app.route('/api/give_up', methods=['POST'])
+def handle_give_up():
+    """Give up the current round and reveal the answer"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id') or session.get('game_session_id')
+        if not session_id or session_id not in active_sessions:
+            return jsonify({'error': NO_ACTIVE_SESSION_ERROR}), 400
+        
+        game_session = active_sessions[session_id]
+        if not game_session.current_item:
+            return jsonify({'error': 'No active round to give up'}), 400
+        
+        # End the round as incorrect (give up)
+        result = game_session._end_round(
+            correct=False, 
+            similarity=0.0, 
+            match_type="gave_up",
+            auto_revealed=True
+        )
+        
+        # Add a custom message for giving up
+        result['gave_up'] = True
+        result['message'] = 'You gave up this round'
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Error giving up: {e}")
+        return jsonify({'error': 'Failed to give up'}), 500
+
 @app.route('/api/new_round', methods=['POST'])
 def handle_new_round():
     """Start a new round"""

@@ -47,6 +47,11 @@
         </div>
     </header>
 
+    <!-- Hamburger Menu Toggle -->
+    <button class="hamburger-menu" id="hamburgerMenu" aria-label="Toggle header">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <!-- Main Content -->
     <main class="main">
         <div class="container">
@@ -109,21 +114,17 @@
                             Start Game
                         </button>
 
+                        <button class="btn btn-primary btn-large" id="startOfflineGameBtn"
+                            data-translate="start_offline_game" disabled>
+                            <i class="fas fa-database"></i>
+                            Start Offline Game
+                        </button>
+
                         <!-- Offline Mode Section -->
                         <div class="offline-mode-section">
-                            <div class="mode-separator">
-                                <span data-translate="or">or</span>
-                            </div>
-
                             <div id="offlineStatus" class="offline-status" data-translate="offline_status_checking">
                                 Checking offline availability...
                             </div>
-
-                            <button class="btn btn-secondary btn-large" id="startOfflineGameBtn"
-                                data-translate="start_offline_game" disabled>
-                                <i class="fas fa-database"></i>
-                                Start Offline Game
-                            </button>
 
                             <p class="offline-info">
                                 <i class="fas fa-info-circle"></i>
@@ -146,8 +147,6 @@
                             </div>
                             <div>
                                 <h3 id="currentPlayer">Player</h3>
-                                <p class="current-category"><span data-translate="category">Category</span>: <span
-                                        id="currentCategory">-</span></p>
                             </div>
                         </div>
 
@@ -181,6 +180,11 @@
                                 </div>
                             </div>
 
+                            <div class="facts-category">
+                                <span class="category-main" id="currentCategory">-</span>
+                                <span class="category-sub" id="currentSubCategory"></span>
+                            </div>
+
                             <div class="facts-list" id="factsList">
                                 <div class="no-facts">
                                     <i class="fas fa-question-circle"></i>
@@ -198,7 +202,7 @@
                                     Get Letter Hint
                                 </button>
                             </div>
-                            
+
                             <!-- Letter Hint Display -->
                             <div class="letter-hint-display" id="letterHintDisplay" style="display: none;">
                                 <div class="hint-header">
@@ -207,7 +211,8 @@
                                 </div>
                                 <div class="hint-letters" id="hintLetters"></div>
                                 <div class="hint-info">
-                                    <span data-translate="hints_used">Hints Used</span>: <span id="hintsUsed">0</span>/<span id="maxHints">3</span>
+                                    <span data-translate="hints_used">Hints Used</span>: <span
+                                        id="hintsUsed">0</span>/<span id="maxHints">3</span>
                                 </div>
                             </div>
                         </div>

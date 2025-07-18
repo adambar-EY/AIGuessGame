@@ -35,7 +35,7 @@ const translations = {
         new_round: "New Round",
         give_up: "Give Up",
         main_menu: "Main Menu",
-        
+
         // Hint system
         letter_hint: "Letter Hint",
         hints_used: "Hints Used",
@@ -43,7 +43,7 @@ const translations = {
         letter_revealed: "Letter revealed!",
         no_hints_left: "No Hints",
         no_more_letters: "No more letters to reveal",
-        
+
         // Scoring system
         hint_penalty: "Hint Penalty",
         points_per_hint: "points per hint",
@@ -99,6 +99,7 @@ const translations = {
         failed_submit_guess: "Failed to submit guess. Please try again.",
         failed_start_new_round: "Failed to start new round. Please try again.",
         failed_start_new_game: "Failed to start new game. Please try again.",
+        failed_give_up: "Failed to give up. Please try again.",
 
         // Additional messages
         failed_load_categories: "Failed to load categories",
@@ -149,10 +150,14 @@ const translations = {
         // Additional UI elements
         or: "or",
         offline_mode_info: "Offline mode uses previously generated questions from the database",
-        
+
         // Confirm dialogs
         confirm_give_up: "Are you sure you want to give up this round?",
-        confirm_exit: "Are you sure you want to exit the current game?"
+        confirm_exit: "Are you sure you want to exit the current game?",
+
+        // Give up messages
+        gave_up_title: "You Gave Up",
+        gave_up_message: "The correct answer was:"
     },
     pl: {
         // Header and navigation
@@ -187,7 +192,7 @@ const translations = {
         new_round: "Nowa Runda",
         give_up: "Poddaj się",
         main_menu: "Menu Główne",
-        
+
         // Hint system
         letter_hint: "Podpowiedź Literowa",
         hints_used: "Użyte Podpowiedzi",
@@ -195,7 +200,7 @@ const translations = {
         letter_revealed: "Litera ujawniona!",
         no_hints_left: "Brak Wskazówek",
         no_more_letters: "Nie ma więcej liter do ujawnienia",
-        
+
         // Scoring system
         hint_penalty: "Kara za Podpowiedzi",
         points_per_hint: "punktów za podpowiedź",
@@ -254,6 +259,7 @@ const translations = {
         failed_submit_guess: "Nie udało się wysłać odpowiedzi. Spróbuj ponownie.",
         failed_start_new_round: "Nie udało się rozpocząć nowej rundy. Spróbuj ponownie.",
         failed_start_new_game: "Nie udało się rozpocząć nowej gry. Spróbuj ponownie.",
+        failed_give_up: "Nie udało się poddać. Spróbuj ponownie.",
 
         // Additional messages
         failed_load_categories: "Nie udało się załadować kategorii",
@@ -304,10 +310,14 @@ const translations = {
         // Additional UI elements
         or: "lub",
         offline_mode_info: "Tryb offline używa wcześniej wygenerowanych pytań z bazy danych",
-        
+
         // Confirm dialogs
         confirm_give_up: "Czy na pewno chcesz się poddać w tej rundzie?",
-        confirm_exit: "Czy na pewno chcesz wyjść z obecnej gry?"
+        confirm_exit: "Czy na pewno chcesz wyjść z obecnej gry?",
+
+        // Give up messages
+        gave_up_title: "Poddałeś się",
+        gave_up_message: "Poprawna odpowiedź to:"
     }
 };
 
@@ -657,6 +667,7 @@ class GameApp {
         // Header buttons
         const leaderboardBtn = document.getElementById('leaderboardBtn');
         const statsBtn = document.getElementById('statsBtn');
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
 
         leaderboardBtn.addEventListener('click', () => {
             this.showLeaderboard();
@@ -664,6 +675,10 @@ class GameApp {
 
         statsBtn.addEventListener('click', () => {
             this.showStats();
+        });
+
+        hamburgerMenu.addEventListener('click', () => {
+            this.toggleHeader();
         });
 
         // Modal buttons
@@ -928,6 +943,11 @@ class GameApp {
         // Switch to game screen
         this.showScreen('gameScreen');
 
+        // Automatically request the first fact
+        setTimeout(() => {
+            this.requestFact();
+        }, 500); // Small delay to ensure UI is ready
+
         // Removed "game started" toast
     }
 
@@ -946,8 +966,8 @@ class GameApp {
     resetGameState() {
         document.getElementById('factsList').innerHTML = `
             <div class="no-facts">
-                <i class="fas fa-question-circle"></i>
-                <p>${this.t('click_get_hint')}</p>
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>${this.t('getting_hint')}</p>
             </div>
         `;
         document.getElementById('guessHistory').innerHTML = '';
@@ -957,7 +977,7 @@ class GameApp {
         document.getElementById('getFactBtn').disabled = false;
         document.getElementById('submitGuessBtn').disabled = false;
         document.getElementById('newRoundBtn').style.display = 'none';
-        
+
         // Reset hint system
         document.getElementById('letterHintDisplay').style.display = 'none';
         document.getElementById('hintLetters').textContent = '';
@@ -1025,7 +1045,7 @@ class GameApp {
         try {
             const button = document.getElementById('getLetterHintBtn');
             const originalText = button.innerHTML;
-            
+
             // Disable button and show loading
             button.disabled = true;
             button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${this.t('getting_hint')}`;
@@ -1287,12 +1307,20 @@ class GameApp {
         const title = document.getElementById('resultTitle');
         const message = document.getElementById('resultMessage');
 
-        // Update content
+        // Check if user gave up
+        const gaveUp = data.gave_up || false;
+
+        // Update content based on success or give up
         if (success) {
             icon.className = 'result-icon success';
             icon.innerHTML = '<i class="fas fa-check-circle"></i>';
             title.textContent = this.t('congratulations');
             message.textContent = this.t('you_got_it_right');
+        } else if (gaveUp) {
+            icon.className = 'result-icon failure';
+            icon.innerHTML = '<i class="fas fa-flag"></i>';
+            title.textContent = this.t('gave_up_title') || 'You Gave Up';
+            message.textContent = this.t('gave_up_message') || 'The correct answer was:';
         } else {
             icon.className = 'result-icon failure';
             icon.innerHTML = '<i class="fas fa-times-circle"></i>';
@@ -1353,14 +1381,29 @@ class GameApp {
         // Display subcategory hint if available
         // Removed subcategory hint toast for new round
 
+        // Automatically request the first fact for new round
+        setTimeout(() => {
+            this.requestFact();
+        }, 500); // Small delay to ensure UI is ready
+
         // Removed "new round started" toast
     }
 
-    giveUp() {
+    async giveUp() {
         if (confirm(this.t('confirm_give_up'))) {
-            // You could implement a give up feature here
-            this.showToast(this.t('round_ended_new_round'), 'warning');
-            this.startNewRound();
+            try {
+                const response = await this.httpRequest('/api/give_up', 'POST', {
+                    session_id: this.gameSession,
+                    language: this.currentLanguage
+                });
+
+                // Show the result with the revealed answer
+                this.showResultModal(response);
+
+            } catch (error) {
+                console.error('❌ Failed to give up:', error);
+                this.showToast(this.t('failed_give_up') || 'Failed to give up. Please try again.', 'error');
+            }
         }
     }
 
@@ -1612,6 +1655,17 @@ class GameApp {
             screen.classList.remove('active');
         });
         document.getElementById(screenId).classList.add('active');
+
+        // Add/remove game-active class for mobile header hiding
+        if (screenId === 'gameScreen') {
+            document.body.classList.add('game-active');
+        } else {
+            document.body.classList.remove('game-active');
+        }
+    }
+
+    toggleHeader() {
+        document.body.classList.toggle('show-header');
     }
 
     closeModal(modalId) {

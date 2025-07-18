@@ -103,6 +103,11 @@ body {
     z-index: 100;
 }
 
+/* Hamburger menu - hidden by default on desktop */
+.hamburger-menu {
+    display: none;
+}
+
 .header .container {
     display: flex;
     justify-content: space-between;
@@ -336,12 +341,15 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .player-info {
     display: flex;
     align-items: center;
     gap: 1rem;
+    text-align: center;
 }
 
 .player-avatar {
@@ -391,7 +399,7 @@ body {
 .game-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 1rem;
     padding: 2rem;
 }
 
@@ -400,6 +408,8 @@ body {
     background: #f8f9fa;
     border-radius: 16px;
     padding: 1.5rem;
+    padding-top: 0rem;
+    padding-bottom: 0rem;
 }
 
 .facts-header {
@@ -425,9 +435,33 @@ body {
     font-size: 0.9rem;
 }
 
-.facts-list {
-    min-height: 300px;
+.facts-category {
+    text-align: center;
     margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.category-main {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #667eea;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-sub {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #764ba2;
+    font-style: italic;
+}
+
+.facts-list {
+    min-height: 100px;
+    margin-bottom: 0;
 }
 
 .no-facts {
@@ -462,7 +496,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     color: #333;
 }
 
@@ -806,24 +840,7 @@ body {
 
 /* Offline Mode Styles */
 .offline-mode-section {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.mode-separator {
-    text-align: center;
-    margin: 1rem 0;
-    position: relative;
-}
-
-.mode-separator span {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
 }
 
 .offline-status {
@@ -945,6 +962,53 @@ body {
         padding: 0 15px;
     }
 
+    /* Hide header on mobile by default */
+    .header {
+        display: none;
+    }
+
+    /* Show header when hamburger menu is toggled */
+    .show-header .header {
+        display: block;
+    }
+
+    /* Hide header when game is active on mobile */
+    .game-active .header {
+        display: none;
+    }
+
+    /* Show header when hamburger menu is toggled during game */
+    .game-active.show-header .header {
+        display: block;
+    }
+
+    /* Hamburger menu button - show on mobile for both main screen and game */
+    .hamburger-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1001;
+        background: rgba(102, 126, 234, 0.9);
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .hamburger-menu:hover {
+        background: rgba(102, 126, 234, 1);
+        transform: scale(1.1);
+    }
+
     .header .container {
         flex-direction: column;
         gap: 1rem;
@@ -980,6 +1044,11 @@ body {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
+    }
+
+    /* Hide "What's your guess?" label on mobile */
+    .guess-form h4 {
+        display: none;
     }
 
     .score-display {
@@ -1038,13 +1107,12 @@ body {
 .hint-buttons {
     display: flex;
     gap: 10px;
-    margin-top: 15px;
+    margin-top: 0.5rem;
     flex-wrap: wrap;
 }
 
 .letter-hint-display {
     margin-top: 20px;
-    padding: 15px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1052,7 +1120,7 @@ body {
 }
 
 .hint-header {
-    display: flex;
+    display: none;
     align-items: center;
     gap: 8px;
     margin-bottom: 10px;
@@ -1078,6 +1146,7 @@ body {
 }
 
 .hint-info {
+    display: none;
     text-align: center;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
@@ -1103,7 +1172,7 @@ body {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .hint-buttons button {
         width: 100%;
         min-width: auto;
@@ -1118,7 +1187,7 @@ body {
         justify-content: center;
         text-align: center;
     }
-    
+
     .hint-letters {
         font-size: 20px;
         letter-spacing: 2px;
