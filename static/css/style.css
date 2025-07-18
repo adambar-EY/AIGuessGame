@@ -176,9 +176,14 @@ body {
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     text-decoration: none;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    text-align: center;
 }
 
 .btn:disabled {
@@ -996,6 +1001,9 @@ body {
     .btn {
         padding: 0.6rem 1.2rem;
         font-size: 0.9rem;
+        white-space: normal;
+        text-overflow: clip;
+        overflow: visible;
     }
 }
 
@@ -1077,17 +1085,38 @@ body {
 
 .hint-buttons button {
     flex: 1;
-    min-width: 120px;
+    min-width: 140px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 @media (max-width: 768px) {
     .hint-buttons {
         flex-direction: column;
+        gap: 8px;
     }
     
     .hint-buttons button {
         width: 100%;
         min-width: auto;
+        max-width: none;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        white-space: normal;
+        text-overflow: clip;
+        overflow: visible;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
     
     .hint-letters {

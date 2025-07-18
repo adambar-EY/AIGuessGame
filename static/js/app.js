@@ -28,7 +28,7 @@ const translations = {
         facts_revealed: "Facts Revealed",
         click_get_hint: "Click \"Get Hint\" to reveal your first fact!",
         get_hint: "Get Hint",
-        get_letter_hint: "Get Letter Hint",
+        get_letter_hint: "Letter Hint",
         whats_your_guess: "What's your guess?",
         type_your_answer: "Type your answer here...",
         submit: "Submit",
@@ -41,13 +41,14 @@ const translations = {
         hints_used: "Hints Used",
         hints_remaining: "Hints Remaining",
         letter_revealed: "Letter revealed!",
-        no_hints_left: "No hints left for this round",
+        no_hints_left: "No Hints",
         no_more_letters: "No more letters to reveal",
         
         // Scoring system
         hint_penalty: "Hint Penalty",
         points_per_hint: "points per hint",
         total_hint_penalty: "Total Hint Penalty",
+        getting_hint: "Getting Hint...",
 
         // Result modal
         congratulations: "Congratulations!",
@@ -92,6 +93,12 @@ const translations = {
         loading: "Loading...",
         error: "Error",
         success: "Success",
+        failed_start_game: "Failed to start game. Please try again.",
+        failed_get_fact: "Failed to get fact. Please try again.",
+        failed_get_hint: "Failed to get hint. Please try again.",
+        failed_submit_guess: "Failed to submit guess. Please try again.",
+        failed_start_new_round: "Failed to start new round. Please try again.",
+        failed_start_new_game: "Failed to start new game. Please try again.",
 
         // Additional messages
         failed_load_categories: "Failed to load categories",
@@ -141,7 +148,11 @@ const translations = {
 
         // Additional UI elements
         or: "or",
-        offline_mode_info: "Offline mode uses previously generated questions from the database"
+        offline_mode_info: "Offline mode uses previously generated questions from the database",
+        
+        // Confirm dialogs
+        confirm_give_up: "Are you sure you want to give up this round?",
+        confirm_exit: "Are you sure you want to exit the current game?"
     },
     pl: {
         // Header and navigation
@@ -167,9 +178,9 @@ const translations = {
         round_score: "Wynik Rundy",
         total_score: "Wynik Całkowity",
         facts_revealed: "Odkryte Fakty",
-        click_get_hint: "Kliknij \"Otrzymaj Wskazówkę\" aby odkryć pierwszy fakt!",
-        get_hint: "Otrzymaj Wskazówkę",
-        get_letter_hint: "Otrzymaj Podpowiedź Literową",
+        click_get_hint: "Kliknij \"Wskazówka\" aby odkryć pierwszy fakt!",
+        get_hint: "Wskazówka",
+        get_letter_hint: "Litera",
         whats_your_guess: "Jaka jest twoja odpowiedź?",
         type_your_answer: "Wpisz tutaj swoją odpowiedź...",
         submit: "Wyślij",
@@ -182,13 +193,14 @@ const translations = {
         hints_used: "Użyte Podpowiedzi",
         hints_remaining: "Pozostałe Podpowiedzi",
         letter_revealed: "Litera ujawniona!",
-        no_hints_left: "Brak podpowiedzi na tę rundę",
+        no_hints_left: "Brak Wskazówek",
         no_more_letters: "Nie ma więcej liter do ujawnienia",
         
         // Scoring system
         hint_penalty: "Kara za Podpowiedzi",
         points_per_hint: "punktów za podpowiedź",
         total_hint_penalty: "Całkowita Kara za Podpowiedzi",
+        getting_hint: "Ładowanie...",
 
         give_up: "Poddaj Się",
         main_menu: "Menu Główne",
@@ -236,6 +248,12 @@ const translations = {
         loading: "Ładowanie...",
         error: "Błąd",
         success: "Sukces",
+        failed_start_game: "Nie udało się rozpocząć gry. Spróbuj ponownie.",
+        failed_get_fact: "Nie udało się pobrać faktu. Spróbuj ponownie.",
+        failed_get_hint: "Nie udało się pobrać wskazówki. Spróbuj ponownie.",
+        failed_submit_guess: "Nie udało się wysłać odpowiedzi. Spróbuj ponownie.",
+        failed_start_new_round: "Nie udało się rozpocząć nowej rundy. Spróbuj ponownie.",
+        failed_start_new_game: "Nie udało się rozpocząć nowej gry. Spróbuj ponownie.",
 
         // Additional messages
         failed_load_categories: "Nie udało się załadować kategorii",
@@ -283,9 +301,13 @@ const translations = {
         switch_to_online: "Przełącz na Tryb Online",
         using_database_question: "Używanie pytania z bazy danych",
 
-        // Additional UI elements 
+        // Additional UI elements
         or: "lub",
-        offline_mode_info: "Tryb offline używa wcześniej wygenerowanych pytań z bazy danych"
+        offline_mode_info: "Tryb offline używa wcześniej wygenerowanych pytań z bazy danych",
+        
+        // Confirm dialogs
+        confirm_give_up: "Czy na pewno chcesz się poddać w tej rundzie?",
+        confirm_exit: "Czy na pewno chcesz wyjść z obecnej gry?"
     }
 };
 
@@ -842,7 +864,7 @@ class GameApp {
 
         } catch (error) {
             console.error('❌ Failed to start game:', error);
-            this.showToast('Failed to start game. Please try again.', 'error');
+            this.showToast(this.t('failed_start_game'), 'error');
 
             // Reset button state on error
             this.gameStarting = false;
@@ -925,7 +947,7 @@ class GameApp {
         document.getElementById('factsList').innerHTML = `
             <div class="no-facts">
                 <i class="fas fa-question-circle"></i>
-                <p>Click "Get Hint" to reveal your first fact!</p>
+                <p>${this.t('click_get_hint')}</p>
             </div>
         `;
         document.getElementById('guessHistory').innerHTML = '';
@@ -959,7 +981,7 @@ class GameApp {
 
         } catch (error) {
             console.error('❌ Failed to get fact:', error);
-            this.showToast('Failed to get fact. Please try again.', 'error');
+            this.showToast(this.t('failed_get_fact'), 'error');
         } finally {
             setTimeout(() => {
                 document.getElementById('getFactBtn').disabled = false;
@@ -995,7 +1017,7 @@ class GameApp {
 
     handleNoMoreFacts() {
         document.getElementById('getFactBtn').disabled = true;
-        document.getElementById('getFactBtn').innerHTML = '<i class="fas fa-ban"></i> No More Hints';
+        document.getElementById('getFactBtn').innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
         this.showToast(this.t('no_more_facts_available'), 'warning');
     }
 
@@ -1006,7 +1028,7 @@ class GameApp {
             
             // Disable button and show loading
             button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Hint...';
+            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${this.t('getting_hint')}`;
 
             const response = await this.httpRequest('/api/get_hint', 'POST', {
                 session_id: this.gameSession,
@@ -1017,7 +1039,7 @@ class GameApp {
 
         } catch (error) {
             console.error('❌ Failed to get letter hint:', error);
-            this.showToast('Failed to get hint. Please try again.', 'error');
+            this.showToast(this.t('failed_get_hint'), 'error');
         } finally {
             setTimeout(() => {
                 const button = document.getElementById('getLetterHintBtn');
@@ -1054,7 +1076,7 @@ class GameApp {
             if (data.hints_remaining === 0) {
                 const button = document.getElementById('getLetterHintBtn');
                 button.disabled = true;
-                button.innerHTML = '<i class="fas fa-ban"></i> No More Hints';
+                button.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
             }
 
             // Show enhanced message with scoring info
@@ -1094,7 +1116,7 @@ class GameApp {
 
         } catch (error) {
             console.error('❌ Failed to submit guess:', error);
-            this.showToast('Failed to submit guess. Please try again.', 'error');
+            this.showToast(this.t('failed_submit_guess'), 'error');
         }
     }
 
@@ -1307,7 +1329,7 @@ class GameApp {
 
         } catch (error) {
             console.error('❌ Failed to start new round:', error);
-            this.showToast('Failed to start new round. Please try again.', 'error');
+            this.showToast(this.t('failed_start_new_round'), 'error');
         }
     }
 
@@ -1335,7 +1357,7 @@ class GameApp {
     }
 
     giveUp() {
-        if (confirm('Are you sure you want to give up this round?')) {
+        if (confirm(this.t('confirm_give_up'))) {
             // You could implement a give up feature here
             this.showToast(this.t('round_ended_new_round'), 'warning');
             this.startNewRound();
@@ -1343,7 +1365,7 @@ class GameApp {
     }
 
     backToMenu() {
-        if (this.gameActive && !confirm('Are you sure you want to exit the current game?')) {
+        if (this.gameActive && !confirm(this.t('confirm_exit'))) {
             return;
         }
 
@@ -1406,7 +1428,7 @@ class GameApp {
 
         } catch (error) {
             console.error('❌ Failed to start new game:', error);
-            this.showToast('Failed to start new game. Please try again.', 'error');
+            this.showToast(this.t('failed_start_new_game'), 'error');
         }
     }
 
