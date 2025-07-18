@@ -303,31 +303,42 @@ class AzureOpenAIGameEngine:
         self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
         
-        if not self.endpoint:
-            raise ValueError("AZURE_OPENAI_ENDPOINT environment variable is required")
-        if not self.deployment_name:
-            raise ValueError("AZURE_OPENAI_DEPLOYMENT_NAME environment variable is required")
+        # Check if we have the required environment variables
+        if not self.endpoint or not self.deployment_name:
+            logger.error("Azure OpenAI environment variables not configured. AI features will be disabled.")
+            self.client = None
+            return
         
-        # Initialize Azure OpenAI client with appropriate authentication
-        if self.api_key:
-            # Use API key authentication for local development
-            self.client = AzureOpenAI(
-                azure_endpoint=self.endpoint,
-                api_key=self.api_key,
-                api_version=self.api_version,
-            )
-        else:
-            # Use DefaultAzureCredential for production
-            credential = DefaultAzureCredential()
-            self.client = AzureOpenAI(
-                azure_endpoint=self.endpoint,
-                azure_ad_token_provider=lambda: credential.get_token("https://cognitiveservices.azure.com/.default").token,
-                api_version=self.api_version,
-            )
+        try:
+            # Initialize Azure OpenAI client with appropriate authentication
+            if self.api_key:
+                # Use API key authentication for local development
+                self.client = AzureOpenAI(
+                    azure_endpoint=self.endpoint,
+                    api_key=self.api_key,
+                    api_version=self.api_version,
+                )
+            else:
+                # Use DefaultAzureCredential for production
+                credential = DefaultAzureCredential()
+                self.client = AzureOpenAI(
+                    azure_endpoint=self.endpoint,
+                    azure_ad_token_provider=lambda: credential.get_token("https://cognitiveservices.azure.com/.default").token,
+                    api_version=self.api_version,
+                )
+            logger.info("Azure OpenAI client initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize Azure OpenAI client: {e}")
+            self.client = None
 
     def generate_game_item(self, category_hint=None, subcategory_hint=None, lang_manager=None, 
                           difficulty=None, category_manager=None, session_id=None, player_name=None):
         """Generate a random item with 5 facts using Azure OpenAI, with strong duplicate prevention."""
+        # If Azure OpenAI client is not available, return fallback item
+        if not self.client:
+            logger.warning("Azure OpenAI client not available, returning fallback item")
+            return self._get_fallback_item(lang_manager)
+        
         generation_start_time = time.time()
         max_attempts = 5
         
@@ -452,6 +463,9 @@ Rules:
     
     def _call_openai_api(self, prompt, attempt):
         """Make the API call to OpenAI."""
+        if not self.client:
+            raise ValueError("Azure OpenAI client not available")
+        
         return self.client.chat.completions.create(
             model=self.deployment_name or "gpt-4o",
             messages=[
