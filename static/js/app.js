@@ -1992,13 +1992,30 @@ class GameApp {
 
         // Only add touch gestures on mobile devices
         if (window.innerWidth <= 768) {
+            function isTouchOnCarousel(e) {
+                // Check if the touch event target is inside the facts carousel
+                let el = e.target;
+                while (el) {
+                    if (el.classList && el.classList.contains('facts-carousel')) return true;
+                    el = el.parentElement;
+                }
+                return false;
+            }
+
             document.addEventListener('touchstart', (e) => {
+                if (isTouchOnCarousel(e)) {
+                    isDragging = false;
+                    touchStartX = 0;
+                    touchStartY = 0;
+                    return;
+                }
                 const touch = e.touches[0];
                 touchStartX = touch.clientX;
                 touchStartY = touch.clientY;
             }, { passive: true });
 
             document.addEventListener('touchmove', (e) => {
+                if (isTouchOnCarousel(e)) return;
                 const touch = e.touches[0];
                 touchEndX = touch.clientX;
                 touchEndY = touch.clientY;
@@ -2038,6 +2055,14 @@ class GameApp {
             }, { passive: true });
 
             document.addEventListener('touchend', (e) => {
+                if (isTouchOnCarousel(e)) {
+                    isDragging = false;
+                    touchStartX = 0;
+                    touchStartY = 0;
+                    touchEndX = 0;
+                    touchEndY = 0;
+                    return;
+                }
                 if (!isDragging) {
                     isDragging = false;
                     touchStartX = 0;
