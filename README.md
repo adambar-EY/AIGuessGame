@@ -1,13 +1,13 @@
 # AI-Powered Multilingual Guessing Game
 
-A modern Flask web application where players guess items based on progressive AI-generated facts. Features bilingual support (English/Polish), Azure OpenAI integration, PostgreSQL/Supabase storage, and graceful offline fallback.
+An advanced Flask web app where players guess items based on progressive, AI-generated facts. Features bilingual support (English/Polish), Azure OpenAI integration, PostgreSQL/Supabase storage, and robust offline fallback.
 
 ## Features
 - Progressive fact-based guessing game
-- Azure OpenAI-powered fact generation (with database and static fallback)
+- Azure OpenAI-powered fact generation (with DB and static fallback)
 - Dual-mode: Online (AI) and Offline (database)
 - Bilingual UI and prompts (EN/PL)
-- Responsive, mobile-first design with carousel facts on mobile
+- Responsive, mobile-first design (carousel facts on mobile)
 - PostgreSQL/Supabase integration (psycopg2, not REST)
 - Graceful degradation: local JSON fallback if cloud unavailable
 - Fuzzy answer matching (Jaro-Winkler, 90% threshold)
@@ -19,7 +19,7 @@ A modern Flask web application where players guess items based on progressive AI
 ```pwsh
 python -m venv .venv
 .venv\Scripts\activate
-cp .env.example .env  # Set your environment variables
+copy .env.example .env  # Set your environment variables
 ```
 
 ### 2. Install Dependencies
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 ```
 
 ### 3. Configure Environment Variables
-Copy `.env.example` to `.env` and set:
+Edit `.env` and set:
 - `AZURE_OPENAI_ENDPOINT`
 - `AZURE_OPENAI_DEPLOYMENT_NAME`
 - `AZURE_OPENAI_API_KEY` (optional in production)
@@ -49,17 +49,20 @@ App runs on `http://0.0.0.0:5001` by default.
 - **static/js/app.js**: Frontend logic, carousel, translation, UI state
 - **static/css/style.css**: Responsive, mobile-first design
 
+
 ## Game Flow
-1. **Start Game**: Creates session, selects language, category, difficulty
+1. **Start Game**: Create session, select language, category, difficulty
 2. **Fact Generation**: AI → DB → Static fallback
 3. **Guessing**: Fuzzy matching (Jaro-Winkler, 90%)
 4. **Hints**: Fact hints (max 5), letter hints (max 3)
 5. **Session/Score**: Leaderboards, stats, multi-round support
 
+
 ## Dual Mode
 - **Online**: `/api/start_game` (AI via Azure OpenAI)
 - **Offline**: `/api/start_offline_game` (DB fallback)
 - Auto-detects availability, suggests alternatives
+
 
 ## Mobile & UI
 - Carousel facts on mobile
@@ -67,10 +70,12 @@ App runs on `http://0.0.0.0:5001` by default.
 - Hamburger menu hidden on mobile
 - Responsive, modern CSS (Flexbox/Grid)
 
+
 ## Error Handling
 - Graceful fallback: AI → DB → Static
 - Localized error messages
 - Logging: WARNING for normal, ERROR for failures
+
 
 ## Testing & Debugging
 ```pwsh
@@ -84,4 +89,4 @@ python app.py
 MIT License
 
 ---
-For more details, see the in-code documentation and `.github/copilot-instructions.md`.
+For more details, see in-code documentation and `.github/copilot-instructions.md`.
