@@ -1983,12 +1983,10 @@ class GameApp {
         let touchStartY = 0;
         let touchEndX = 0;
         let touchEndY = 0;
-        let isSwipeFromEdge = false;
         let isDragging = false;
 
         const minSwipeDistance = 100; // Minimum distance for a swipe
         const maxVerticalDistance = 100; // Maximum vertical movement allowed
-        const edgeThreshold = 30; // Distance from left edge to trigger swipe
         const mobileNavPanel = document.getElementById('mobileNavPanel');
         const mobileNavOverlay = document.getElementById('mobileNavOverlay');
 
@@ -1998,15 +1996,9 @@ class GameApp {
                 const touch = e.touches[0];
                 touchStartX = touch.clientX;
                 touchStartY = touch.clientY;
-
-                // Check if touch started near the left edge or on the open panel
-                isSwipeFromEdge = touchStartX <= edgeThreshold ||
-                    (mobileNavPanel.classList.contains('active') && touchStartX <= 300);
             }, { passive: true });
 
             document.addEventListener('touchmove', (e) => {
-                if (!isSwipeFromEdge) return;
-
                 const touch = e.touches[0];
                 touchEndX = touch.clientX;
                 touchEndY = touch.clientY;
@@ -2018,7 +2010,7 @@ class GameApp {
                 if (Math.abs(horizontalDistance) > 10 && verticalDistance < 50) {
                     isDragging = true;
 
-                    // If panel is closed and user is swiping from left edge
+                    // If panel is closed and user is swiping right
                     if (!mobileNavPanel.classList.contains('active') && horizontalDistance > 0) {
                         const dragDistance = Math.min(horizontalDistance, 300);
                         const progress = dragDistance / 300;
@@ -2031,7 +2023,7 @@ class GameApp {
                         mobileNavOverlay.style.visibility = 'visible';
                     }
 
-                    // If panel is open and user is swiping right to left
+                    // If panel is open and user is swiping left
                     if (mobileNavPanel.classList.contains('active') && horizontalDistance < 0) {
                         const dragDistance = Math.max(horizontalDistance, -300);
 
@@ -2046,9 +2038,12 @@ class GameApp {
             }, { passive: true });
 
             document.addEventListener('touchend', (e) => {
-                if (!isSwipeFromEdge || !isDragging) {
+                if (!isDragging) {
                     isDragging = false;
-                    isSwipeFromEdge = false;
+                    touchStartX = 0;
+                    touchStartY = 0;
+                    touchEndX = 0;
+                    touchEndY = 0;
                     return;
                 }
 
@@ -2062,10 +2057,9 @@ class GameApp {
                 mobileNavOverlay.style.opacity = '';
                 mobileNavOverlay.style.visibility = '';
 
-                // Check if it's a valid left-to-right swipe to open
+                // Check if it's a valid left-to-right swipe to open (anywhere on screen)
                 if (horizontalDistance > minSwipeDistance &&
                     verticalDistance < maxVerticalDistance &&
-                    touchStartX <= edgeThreshold &&
                     !mobileNavPanel.classList.contains('active')) {
 
                     this.toggleMobileNav();
@@ -2090,7 +2084,6 @@ class GameApp {
 
                 // Reset values
                 isDragging = false;
-                isSwipeFromEdge = false;
                 touchStartX = 0;
                 touchStartY = 0;
                 touchEndX = 0;
