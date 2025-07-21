@@ -1,4 +1,4 @@
-// AI Guessing Game - Frontend JavaScript
+// Fact Quest - Frontend JavaScript
 
 // Translation dictionary
 const translations = {
@@ -6,9 +6,10 @@ const translations = {
         // Header and navigation
         leaderboard: "Leaderboard",
         my_stats: "My Stats",
+        swipe_to_open: "Swipe to open",
 
         // Welcome screen
-        welcome_title: "Welcome to the AI Guessing Game!",
+        welcome_title: "Welcome to Fact Quest!",
         welcome_description: "Test your knowledge across multiple categories. Get facts one by one and guess the answer. The fewer facts you need, the higher your score!",
         your_name: "Your Name",
         enter_your_name: "Enter your name",
@@ -70,7 +71,7 @@ const translations = {
         loading_statistics: "Loading statistics...",
 
         // Messages and notifications
-        welcome_message: "Welcome to the AI Guessing Game!",
+        welcome_message: "Welcome to Fact Quest!",
         connection_lost: "Connection lost. Please refresh the page.",
         fact_revealed_msg: "New fact revealed!",
         correct_guess_msg: "Correct! Well done!",
@@ -163,9 +164,10 @@ const translations = {
         // Header and navigation
         leaderboard: "Ranking",
         my_stats: "Moje Statystyki",
+        swipe_to_open: "Przesuń aby otworzyć",
 
         // Welcome screen
-        welcome_title: "Witaj w Grze Zgadywania AI!",
+        welcome_title: "Witaj w Fact Quest!",
         welcome_description: "Przetestuj swoją wiedzę w różnych kategoriach. Otrzymuj fakty jeden po drugim i zgaduj odpowiedź. Im mniej faktów potrzebujesz, tym wyższy twój wynik!",
         your_name: "Twoje Imię",
         enter_your_name: "Wprowadź swoje imię",
@@ -340,6 +342,10 @@ class GameApp {
         this.maxRounds = null;
         this.roundsCompleted = 0;
         this.gameComplete = false;
+
+        // Carousel state for mobile facts display
+        this.currentFactIndex = 0;
+        this.carouselFacts = [];
 
         // Offline mode support
         this.offlineMode = false;
@@ -554,6 +560,12 @@ class GameApp {
             startGameBtn: !!startGameBtn
         });
 
+        // Hide hamburger menu button
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        if (hamburgerMenu) {
+            hamburgerMenu.style.display = 'none';
+        }
+
         playerNameInput.addEventListener('input', () => {
             this.validateStartButton();
         });
@@ -664,10 +676,10 @@ class GameApp {
             this.backToMenu();
         });
 
+
         // Header buttons
         const leaderboardBtn = document.getElementById('leaderboardBtn');
         const statsBtn = document.getElementById('statsBtn');
-        const hamburgerMenu = document.getElementById('hamburgerMenu');
 
         leaderboardBtn.addEventListener('click', () => {
             this.showLeaderboard();
@@ -677,9 +689,46 @@ class GameApp {
             this.showStats();
         });
 
-        hamburgerMenu.addEventListener('click', () => {
-            this.toggleHeader();
+        // Hamburger menu is hidden, so no event listener needed
+
+        // Mobile navigation event listeners
+        const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+        const mobileNavClose = document.getElementById('mobileNavClose');
+        const mobileLeaderboardBtn = document.getElementById('mobileLeaderboardBtn');
+        const mobileStatsBtn = document.getElementById('mobileStatsBtn');
+        const mobileLanguageSelect = document.getElementById('mobileLanguageSelect');
+
+        mobileNavOverlay.addEventListener('click', () => {
+            this.closeMobileNav();
         });
+
+        mobileNavClose.addEventListener('click', () => {
+            this.closeMobileNav();
+        });
+
+        mobileLeaderboardBtn.addEventListener('click', () => {
+            this.closeMobileNav();
+            this.showLeaderboard();
+        });
+
+        mobileStatsBtn.addEventListener('click', () => {
+            this.closeMobileNav();
+            this.showStats();
+        });
+
+        // Sync mobile language selector with main language selector
+        mobileLanguageSelect.addEventListener('change', (e) => {
+            const headerLanguageSelect = document.getElementById('headerLanguageSelect');
+            headerLanguageSelect.value = e.target.value;
+            headerLanguageSelect.dispatchEvent(new Event('change'));
+            this.closeMobileNav();
+        });
+
+        // Touch gesture support for mobile navigation
+        this.setupTouchGestures();
+
+        // Show swipe indicator for first-time users
+        this.showSwipeIndicatorOnMobile();
 
         // Modal buttons
         const playAgainBtn = document.getElementById('playAgainBtn');
@@ -773,7 +822,12 @@ class GameApp {
         this.difficulties.forEach(difficulty => {
             const option = document.createElement('option');
             option.value = difficulty.name;
-            option.textContent = `${difficulty.display_name} (${difficulty.score_multiplier}x points)`;
+            let displayName = difficulty.display_name;
+            // In Polish, capitalize only the first letter
+            if (this.currentLanguage === 'pl') {
+                displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1).toLowerCase();
+            }
+            option.textContent = `${displayName} (${difficulty.score_multiplier}x points)`;
             if (difficulty.description) {
                 option.title = difficulty.description;
             }
@@ -964,12 +1018,37 @@ class GameApp {
     }
 
     resetGameState() {
-        document.getElementById('factsList').innerHTML = `
-            <div class="no-facts">
-                <i class="fas fa-spinner fa-spin"></i>
-                <p>${this.t('getting_hint')}</p>
-            </div>
-        `;
+        // Check if mobile and initialize carousel accordingly
+        const isMobile = window.innerWidth <= 768;
+        const factsList = document.getElementById('factsList');
+
+        console.log('🔄 resetGameState - isMobile:', isMobile, 'window width:', window.innerWidth);
+
+        if (isMobile) {
+            // Initialize carousel structure for mobile
+            console.log('🎠 Setting up mobile carousel structure');
+            factsList.innerHTML = `
+                <div class="facts-carousel">
+                    <div class="facts-carousel-container">
+                        <div class="no-facts">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>${this.t('getting_hint')}</p>
+                        </div>
+                    </div>
+                    <div class="facts-navigation"></div>
+                </div>
+            `;
+        } else {
+            // Desktop view - traditional list
+            console.log('🖥️ Setting up desktop list structure');
+            factsList.innerHTML = `
+                <div class="no-facts">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>${this.t('getting_hint')}</p>
+                </div>
+            `;
+        }
+
         document.getElementById('guessHistory').innerHTML = '';
         document.getElementById('factsShown').textContent = '0';
         document.getElementById('roundScore').textContent = '0';
@@ -986,6 +1065,9 @@ class GameApp {
         const letterHintBtn = document.getElementById('getLetterHintBtn');
         letterHintBtn.disabled = false;
         letterHintBtn.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
+
+        // Initialize carousel for mobile
+        this.initializeCarousel();
     }
 
     async requestFact() {
@@ -1011,14 +1093,59 @@ class GameApp {
 
     handleFactRevealed(data) {
         const factsList = document.getElementById('factsList');
+        const isMobile = window.innerWidth <= 768;
 
-        // Remove no-facts message if present
-        const noFacts = factsList.querySelector('.no-facts');
-        if (noFacts) {
-            noFacts.remove();
+        console.log('📋 handleFactRevealed - isMobile:', isMobile, 'fact number:', data.fact_number);
+
+        if (isMobile) {
+            // Mobile carousel view
+            console.log('📱 Adding fact to carousel');
+            this.addFactToCarousel(data);
+        } else {
+            // Desktop list view - remove no-facts message if present
+            const noFacts = factsList.querySelector('.no-facts');
+            if (noFacts) {
+                noFacts.remove();
+            }
+            console.log('🖥️ Adding fact to list');
+            this.addFactToList(data);
         }
 
-        // Add new fact
+        // Update counter
+        document.getElementById('factsShown').textContent = data.fact_number;
+
+        // Enforce disabling Get Hint button after 5 facts revealed
+        const getFactBtn = document.getElementById('getFactBtn');
+        if (getFactBtn) {
+            if (data.fact_number >= 5) {
+                getFactBtn.disabled = true;
+                getFactBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+            } else {
+                getFactBtn.disabled = false;
+                getFactBtn.innerHTML = `<i class="fas fa-eye"></i> ${this.t('get_hint')}`;
+            }
+        }
+
+        // Enforce disabling Letter Hint button if 3 or more letters are uncovered
+        const letterHintBtn = document.getElementById('getLetterHintBtn');
+        const hintLetters = document.getElementById('hintLetters');
+        if (letterHintBtn && hintLetters) {
+            // Count uncovered letters (not _ or space)
+            const revealed = (hintLetters.textContent.match(/[^_\s]/g) || []).length;
+            if (revealed >= 3) {
+                letterHintBtn.disabled = true;
+                letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+            } else {
+                letterHintBtn.disabled = false;
+                letterHintBtn.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
+            }
+        }
+    }
+
+    addFactToList(data) {
+        const factsList = document.getElementById('factsList');
+
+        // Add new fact to desktop list
         const factElement = document.createElement('div');
         factElement.className = 'fact-item';
         factElement.innerHTML = `
@@ -1028,11 +1155,166 @@ class GameApp {
 
         factsList.appendChild(factElement);
 
-        // Update counter
-        document.getElementById('factsShown').textContent = data.fact_number;
-
         // Scroll to bottom
         factsList.scrollTop = factsList.scrollHeight;
+    }
+
+    addFactToCarousel(data) {
+        const factsList = document.getElementById('factsList');
+        const carouselContainer = factsList.querySelector('.facts-carousel-container');
+        const navigation = factsList.querySelector('.facts-navigation');
+
+        console.log('🎠 addFactToCarousel:', {
+            factsList: !!factsList,
+            carouselContainer: !!carouselContainer,
+            navigation: !!navigation,
+            factNumber: data.fact_number
+        });
+
+        if (!carouselContainer || !navigation) {
+            console.error('❌ Carousel elements not found!');
+            return;
+        }
+
+        // Remove no-facts message if it's the first fact
+        if (carouselContainer.children.length === 1) {
+            const noFacts = carouselContainer.querySelector('.no-facts');
+            if (noFacts) {
+                console.log('🗑️ Removing no-facts message');
+                noFacts.remove();
+            }
+        }
+
+        // Add new fact to carousel
+        const factElement = document.createElement('div');
+        factElement.className = 'fact-item';
+        factElement.innerHTML = `
+            <div class="fact-number">${this.t('fact')} ${data.fact_number}:</div>
+            <div class="fact-text">${data.fact}</div>
+        `;
+
+        console.log('➕ Adding fact element to carousel');
+        carouselContainer.appendChild(factElement);
+
+        // Add navigation dot
+        const dot = document.createElement('div');
+        dot.className = 'facts-nav-dot';
+        dot.addEventListener('click', () => {
+            this.goToFact(data.fact_number - 1);
+        });
+        navigation.appendChild(dot);
+
+        console.log('🎯 Updating carousel, going to fact:', data.fact_number - 1);
+        // Update carousel and go to the new fact
+        this.updateCarousel();
+        this.goToFact(data.fact_number - 1);
+    }
+
+    updateCarousel() {
+        const factsList = document.getElementById('factsList');
+        const dots = factsList.querySelectorAll('.facts-nav-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === this.currentFactIndex);
+        });
+    }
+
+    goToFact(index) {
+        const factsList = document.getElementById('factsList');
+        const carouselContainer = factsList.querySelector('.facts-carousel-container');
+
+        if (!carouselContainer) return;
+
+        const totalFacts = carouselContainer.children.length;
+
+        if (index < 0 || index >= totalFacts) return;
+
+        this.currentFactIndex = index;
+        const translateX = -index * 100;
+        carouselContainer.style.transform = `translateX(${translateX}%)`;
+
+        this.updateCarousel();
+    }
+
+    initializeCarousel() {
+        // Reset carousel state
+        this.currentFactIndex = 0;
+        this.carouselFacts = [];
+
+        const factsList = document.getElementById('factsList');
+        if (!factsList) return;
+
+        // Clear existing carousel content (will be done in resetGameState)
+        const carouselContainer = factsList.querySelector('.facts-carousel-container');
+        const carouselDots = factsList.querySelector('.facts-navigation');
+
+        if (carouselContainer) {
+            // Keep the no-facts message for now, it will be removed when first fact is added
+        }
+
+        if (carouselDots) {
+            carouselDots.innerHTML = '';
+        }
+
+        // Handle window resize to switch between desktop and mobile views
+        window.addEventListener('resize', () => {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile && this.gameActive && carouselContainer && carouselContainer.children.length > 0) {
+                // Mobile view - carousel structure is already in place
+                console.log('Switched to mobile carousel view');
+            } else if (!isMobile) {
+                // Desktop view - traditional list
+                // Will be handled by the general game logic
+            }
+        });
+
+        // Add touch/swipe support for mobile
+        this.initializeTouchSupport();
+    }
+
+    initializeTouchSupport() {
+        const factsList = document.getElementById('factsList');
+        if (!factsList) return;
+
+        const carouselContainer = factsList.querySelector('.facts-carousel-container');
+        if (!carouselContainer) return;
+
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        // Use passive: true for touchstart
+        carouselContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        }, { passive: true });
+
+        // Use passive: false for touchmove only if preventDefault is called
+        carouselContainer.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            e.preventDefault();
+        }, { passive: false });
+
+        // Use passive: true for touchend
+        carouselContainer.addEventListener('touchend', () => {
+            if (!isDragging) return;
+
+            const diffX = startX - currentX;
+            const threshold = 50; // Minimum swipe distance
+
+            if (Math.abs(diffX) > threshold) {
+                if (diffX > 0) {
+                    // Swipe left - next fact
+                    this.goToFact(this.currentFactIndex + 1);
+                } else {
+                    // Swipe right - previous fact
+                    this.goToFact(this.currentFactIndex - 1);
+                }
+            }
+
+            isDragging = false;
+        }, { passive: true });
     }
 
     handleNoMoreFacts() {
@@ -1092,11 +1374,20 @@ class GameApp {
                 `;
             }
 
-            // Disable button if no more hints available
-            if (data.hints_remaining === 0) {
-                const button = document.getElementById('getLetterHintBtn');
-                button.disabled = true;
-                button.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+            // Enforce disabling Letter Hint button if 3 or more letters uncovered
+            const letterHintBtn = document.getElementById('getLetterHintBtn');
+            if (letterHintBtn && hintLetters) {
+                const revealed = (hintLetters.textContent.match(/[^_\s]/g) || []).length;
+                if (revealed >= 3) {
+                    letterHintBtn.disabled = true;
+                    letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+                } else if (data.hints_remaining === 0) {
+                    letterHintBtn.disabled = true;
+                    letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+                } else {
+                    letterHintBtn.disabled = false;
+                    letterHintBtn.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
+                }
             }
 
             // Show enhanced message with scoring info
@@ -1664,8 +1955,195 @@ class GameApp {
         }
     }
 
-    toggleHeader() {
-        document.body.classList.toggle('show-header');
+    toggleMobileNav() {
+        const mobileNavPanel = document.getElementById('mobileNavPanel');
+        const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+
+        mobileNavPanel.classList.toggle('active');
+        mobileNavOverlay.classList.toggle('active');
+
+        // Sync language selector with header
+        if (mobileNavPanel.classList.contains('active')) {
+            const headerLanguageSelect = document.getElementById('headerLanguageSelect');
+            const mobileLanguageSelect = document.getElementById('mobileLanguageSelect');
+            mobileLanguageSelect.value = headerLanguageSelect.value;
+        }
+    }
+
+    closeMobileNav() {
+        const mobileNavPanel = document.getElementById('mobileNavPanel');
+        const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+
+        mobileNavPanel.classList.remove('active');
+        mobileNavOverlay.classList.remove('active');
+    }
+
+    setupTouchGestures() {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        let isSwipeFromEdge = false;
+        let isDragging = false;
+
+        const minSwipeDistance = 100; // Minimum distance for a swipe
+        const maxVerticalDistance = 100; // Maximum vertical movement allowed
+        const edgeThreshold = 30; // Distance from left edge to trigger swipe
+        const mobileNavPanel = document.getElementById('mobileNavPanel');
+        const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+
+        // Only add touch gestures on mobile devices
+        if (window.innerWidth <= 768) {
+            document.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+
+                // Check if touch started near the left edge or on the open panel
+                isSwipeFromEdge = touchStartX <= edgeThreshold ||
+                    (mobileNavPanel.classList.contains('active') && touchStartX <= 300);
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!isSwipeFromEdge) return;
+
+                const touch = e.touches[0];
+                touchEndX = touch.clientX;
+                touchEndY = touch.clientY;
+
+                const horizontalDistance = touchEndX - touchStartX;
+                const verticalDistance = Math.abs(touchEndY - touchStartY);
+
+                // Only start dragging if horizontal movement is significant
+                if (Math.abs(horizontalDistance) > 10 && verticalDistance < 50) {
+                    isDragging = true;
+
+                    // If panel is closed and user is swiping from left edge
+                    if (!mobileNavPanel.classList.contains('active') && horizontalDistance > 0) {
+                        const dragDistance = Math.min(horizontalDistance, 300);
+                        const progress = dragDistance / 300;
+
+                        // Show panel partially based on drag distance
+                        mobileNavPanel.classList.add('partial');
+                        mobileNavOverlay.classList.add('partial');
+                        mobileNavPanel.style.left = `${-300 + dragDistance}px`;
+                        mobileNavOverlay.style.opacity = progress * 0.5;
+                        mobileNavOverlay.style.visibility = 'visible';
+                    }
+
+                    // If panel is open and user is swiping right to left
+                    if (mobileNavPanel.classList.contains('active') && horizontalDistance < 0) {
+                        const dragDistance = Math.max(horizontalDistance, -300);
+
+                        mobileNavPanel.classList.add('partial');
+                        mobileNavOverlay.classList.add('partial');
+                        mobileNavPanel.style.left = `${dragDistance}px`;
+
+                        const progress = (300 + dragDistance) / 300;
+                        mobileNavOverlay.style.opacity = progress * 0.5;
+                    }
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', (e) => {
+                if (!isSwipeFromEdge || !isDragging) {
+                    isDragging = false;
+                    isSwipeFromEdge = false;
+                    return;
+                }
+
+                const horizontalDistance = touchEndX - touchStartX;
+                const verticalDistance = Math.abs(touchEndY - touchStartY);
+
+                // Clean up partial classes and inline styles
+                mobileNavPanel.classList.remove('partial');
+                mobileNavOverlay.classList.remove('partial');
+                mobileNavPanel.style.left = '';
+                mobileNavOverlay.style.opacity = '';
+                mobileNavOverlay.style.visibility = '';
+
+                // Check if it's a valid left-to-right swipe to open
+                if (horizontalDistance > minSwipeDistance &&
+                    verticalDistance < maxVerticalDistance &&
+                    touchStartX <= edgeThreshold &&
+                    !mobileNavPanel.classList.contains('active')) {
+
+                    this.toggleMobileNav();
+                }
+
+                // Check for right-to-left swipe to close panel
+                else if (horizontalDistance < -minSwipeDistance &&
+                    verticalDistance < maxVerticalDistance &&
+                    mobileNavPanel.classList.contains('active')) {
+
+                    this.closeMobileNav();
+                }
+
+                // Check if user dragged far enough to trigger open/close
+                else if (isDragging) {
+                    if (!mobileNavPanel.classList.contains('active') && horizontalDistance > 150) {
+                        this.toggleMobileNav();
+                    } else if (mobileNavPanel.classList.contains('active') && horizontalDistance < -150) {
+                        this.closeMobileNav();
+                    }
+                }
+
+                // Reset values
+                isDragging = false;
+                isSwipeFromEdge = false;
+                touchStartX = 0;
+                touchStartY = 0;
+                touchEndX = 0;
+                touchEndY = 0;
+            }, { passive: true });
+        }
+
+        // Re-setup gestures when window is resized
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                // Close mobile nav if window becomes desktop size
+                this.closeMobileNav();
+            }
+        });
+    }
+
+    showSwipeIndicatorOnMobile() {
+        // Only show on mobile devices
+        if (window.innerWidth <= 768) {
+            const swipeIndicator = document.getElementById('swipeIndicator');
+            const hasSeenSwipeHint = localStorage.getItem('hasSeenSwipeHint');
+
+            // Show indicator for first-time users or occasionally for returning users
+            if (!hasSeenSwipeHint) {
+                // Show after a short delay when page loads
+                setTimeout(() => {
+                    this.showSwipeHint();
+                    localStorage.setItem('hasSeenSwipeHint', 'true');
+                }, 2000);
+            } else {
+                // Show occasionally for returning users (10% chance)
+                if (Math.random() < 0.1) {
+                    setTimeout(() => {
+                        this.showSwipeHint();
+                    }, 5000);
+                }
+            }
+        }
+    }
+
+    showSwipeHint() {
+        const swipeIndicator = document.getElementById('swipeIndicator');
+        const mobileNavPanel = document.getElementById('mobileNavPanel');
+
+        // Only show if navigation panel is not already open
+        if (!mobileNavPanel.classList.contains('active')) {
+            swipeIndicator.classList.add('show');
+
+            // Hide after animation completes
+            setTimeout(() => {
+                swipeIndicator.classList.remove('show');
+            }, 2000);
+        }
     }
 
     closeModal(modalId) {
@@ -1998,6 +2476,33 @@ class GameApp {
         /**Clear the offline status cache to force a fresh check**/
         this.offlineStatusCache = null;
         console.log('🗑️ Offline status cache cleared');
+    }
+
+    enforceHintButtonLimits() {
+        // Disable Get Hint after 5 facts
+        const getFactBtn = document.getElementById('getFactBtn');
+        const factsShown = parseInt(document.getElementById('factsShown')?.textContent || "0", 10);
+        if (getFactBtn) {
+            if (factsShown >= 5) {
+                getFactBtn.disabled = true;
+            } else {
+                getFactBtn.disabled = false;
+            }
+        }
+
+        // Disable Letter Hint after 3 letters
+        const letterHintBtn = document.getElementById('getLetterHintBtn');
+        const hintLetters = document.getElementById('hintLetters');
+        if (letterHintBtn && hintLetters) {
+            const revealed = (hintLetters.textContent.match(/[^_\s]/g) || []).length;
+            if (revealed >= 3) {
+                letterHintBtn.disabled = true;
+                letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+            } else {
+                letterHintBtn.disabled = false;
+                letterHintBtn.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
+            }
+        }
     }
 }
 

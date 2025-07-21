@@ -4,7 +4,7 @@
             "name": "English",
             "flag": "🇺🇸",
             "translations": {
-                "welcome": "🎮 Welcome to the AI-Powered Guessing Game with Scoring!",
+                "welcome": "🎮 Welcome to Fact Quest!",
                 "description": "This game uses Azure OpenAI to generate random items and facts.",
                 "instructions": "Type your guess after each fact, or press Enter to see the next fact.",
                 "select_language": "🌐 Select Language / Wybierz Język:",
@@ -83,7 +83,7 @@
             "name": "Polski",
             "flag": "🇵🇱",
             "translations": {
-                "welcome": "🎮 Witamy w Grze Zgadywania opartej na AI z Punktacją!",
+                "welcome": "🎮 Witamy w Fact Quest!",
                 "description": "Ta gra używa Azure OpenAI do generowania losowych przedmiotów i faktów.",
                 "instructions": "Wpisz swoją odpowiedź po każdym fakcie lub naciśnij Enter, aby zobaczyć kolejny fakt.",
                 "select_language": "🌐 Select Language / Wybierz Język:",

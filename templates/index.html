@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 AI Guessing Game</title>
+    <title>🎮 Fact Quest</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -26,7 +26,7 @@
         <div class="container">
             <h1 class="logo">
                 <i class="fas fa-brain"></i>
-                <span>AI Guessing Game</span>
+                <span>Fact Quest</span>
             </h1>
             <div class="header-actions">
                 <div class="language-selector">
@@ -48,9 +48,54 @@
     </header>
 
     <!-- Hamburger Menu Toggle -->
-    <button class="hamburger-menu" id="hamburgerMenu" aria-label="Toggle header">
+    <button class="hamburger-menu" id="hamburgerMenu" aria-label="Toggle navigation">
         <i class="fas fa-bars"></i>
     </button>
+
+    <!-- Swipe Indicator -->
+    <div class="swipe-indicator" id="swipeIndicator">
+        <div class="swipe-arrow"></div>
+        <div class="swipe-text" data-translate="swipe_to_open">Swipe to open</div>
+    </div>
+
+    <!-- Mobile Navigation Panel -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <div class="mobile-nav-panel" id="mobileNavPanel">
+        <div class="mobile-nav-header">
+            <div class="mobile-nav-logo">
+                <i class="fas fa-brain"></i>
+                <span>Fact Quest</span>
+            </div>
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close navigation">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="mobile-nav-content">
+            <div class="mobile-nav-section">
+                <h4 data-translate="language">Language</h4>
+                <div class="mobile-language-selector">
+                    <select id="mobileLanguageSelect" class="language-select">
+                        <option value="en">🇺🇸 English</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mobile-nav-section">
+                <div class="mobile-nav-actions">
+                    <button class="btn btn-outline" id="mobileLeaderboardBtn" data-translate="leaderboard">
+                        <i class="fas fa-trophy"></i>
+                        Leaderboard
+                    </button>
+                    <button class="btn btn-outline" id="mobileStatsBtn" data-translate="my_stats">
+                        <i class="fas fa-chart-bar"></i>
+                        My Stats
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="main">
@@ -61,7 +106,7 @@
                     <div class="welcome-icon">
                         <i class="fas fa-rocket"></i>
                     </div>
-                    <h2 data-translate="welcome_title">Welcome to the AI Guessing Game!</h2>
+                    <h2 data-translate="welcome_title">Welcome to Fact Quest!</h2>
                     <p class="welcome-description" data-translate="welcome_description">
                         Test your knowledge across multiple categories. Get facts one by one and guess the answer.
                         The fewer facts you need, the higher your score!
@@ -125,12 +170,6 @@
                             <div id="offlineStatus" class="offline-status" data-translate="offline_status_checking">
                                 Checking offline availability...
                             </div>
-
-                            <p class="offline-info">
-                                <i class="fas fa-info-circle"></i>
-                                <span data-translate="offline_mode_info">Offline mode uses previously generated
-                                    questions from the database.</span>
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -189,6 +228,15 @@
                                 <div class="no-facts">
                                     <i class="fas fa-question-circle"></i>
                                     <p data-translate="click_get_hint">Click "Get Hint" to reveal your first fact!</p>
+                                </div>
+                                <!-- Facts carousel for mobile -->
+                                <div class="facts-carousel" id="factsCarousel" style="display: none;">
+                                    <div class="facts-carousel-container" id="factsCarouselContainer">
+                                        <!-- Facts will be dynamically inserted here -->
+                                    </div>
+                                    <div class="facts-navigation" id="factsNavigation">
+                                        <!-- Navigation dots will be dynamically inserted here -->
+                                    </div>
                                 </div>
                             </div>
 
@@ -352,7 +400,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 AI Guessing Game. Made with ❤️ and AI.</p>
+            <p>&copy; 2025 Fact Quest</p>
         </div>
     </footer>
 

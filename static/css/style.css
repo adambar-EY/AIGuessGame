@@ -1,4 +1,4 @@
-/* AI Guessing Game - Modern Styling */
+/* Fact Quest - Modern Styling */
 
 /* Reset and Base Styles */
 * {
@@ -465,9 +465,15 @@ body {
 }
 
 .no-facts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     color: #666;
     padding: 2rem;
+    width: 100%;
+    height: 100%;
 }
 
 .no-facts i {
@@ -591,6 +597,59 @@ body {
     gap: 0.5rem;
     margin-top: 1.5rem;
     flex-wrap: wrap;
+}
+
+/* Game controls and buttons */
+.game-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+
+/* Flex row for score display, keep on same line and center content */
+
+
+.score-row,
+.score-display-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    gap: 1.5rem;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+
+#roundScore,
+#totalScore {
+    display: inline-block;
+    text-align: center;
+    margin: 0;
+    float: none;
+}
+
+#roundScore,
+#totalScore {
+    display: inline-block;
+    text-align: center;
+    margin: 0 0.5rem;
+    float: none;
+}
+
+/* Keep Give Up button left-aligned on mobile */
+@media (max-width: 768px) {
+    #giveUpBtn {
+        margin-left: 0 !important;
+        margin-right: auto !important;
+        align-self: flex-start;
+        order: 0;
+    }
 }
 
 /* Modals */
@@ -847,7 +906,6 @@ body {
     text-align: center;
     padding: 0.75rem 1rem;
     border-radius: 8px;
-    margin-bottom: 1rem;
     font-size: 0.9rem;
     font-weight: 500;
 }
@@ -899,21 +957,6 @@ body {
     border: 1px solid rgba(255, 193, 7, 0.3);
 }
 
-.offline-info {
-    text-align: center;
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.offline-info i {
-    color: rgba(255, 255, 255, 0.5);
-}
-
 .btn-secondary:disabled {
     background: rgba(96, 125, 139, 0.3);
     color: rgba(255, 255, 255, 0.4);
@@ -956,10 +999,210 @@ body {
     border: 1px solid rgba(253, 126, 20, 0.3);
 }
 
+/* Mobile Navigation Panel */
+.mobile-nav-panel {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+    z-index: 1002;
+    transition: left 0.3s ease;
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+}
+
+.mobile-nav-panel.active {
+    left: 0;
+}
+
+.mobile-nav-panel.partial {
+    transition: none;
+    /* Disable transition for smooth dragging */
+}
+
+.mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-nav-overlay.partial {
+    transition: none;
+    /* Disable transition for smooth dragging */
+}
+
+/* Swipe Indicator */
+.swipe-indicator {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.swipe-indicator.show {
+    opacity: 1;
+    animation: swipeHint 2s ease-in-out;
+}
+
+.swipe-arrow {
+    width: 40px;
+    height: 6px;
+    background: rgba(102, 126, 234, 0.8);
+    border-radius: 3px;
+    position: relative;
+    margin-left: 10px;
+}
+
+.swipe-arrow::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid rgba(102, 126, 234, 0.8);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+}
+
+.swipe-text {
+    font-size: 0.8rem;
+    color: rgba(102, 126, 234, 0.9);
+    font-weight: 500;
+    margin-top: 8px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 4px 8px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes swipeHint {
+    0% {
+        transform: translateY(-50%) translateX(-20px);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0px);
+    }
+
+    80% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(30px);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(50px);
+    }
+}
+
+.mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.mobile-nav-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mobile-nav-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-close:hover {
+    background: #f1f1f1;
+    color: #333;
+}
+
+.mobile-nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.mobile-nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mobile-nav-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.mobile-language-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mobile-language-selector label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #666;
+}
+
+.mobile-nav-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
         padding: 0 15px;
+    }
+
+    /* Adjust screen padding for mobile */
+    .screen {
+        padding: 1rem 0;
+        min-height: calc(100vh - 80px);
     }
 
     /* Hide header on mobile by default */
@@ -967,46 +1210,33 @@ body {
         display: none;
     }
 
-    /* Show header when hamburger menu is toggled */
-    .show-header .header {
-        display: block;
-    }
-
-    /* Hide header when game is active on mobile */
-    .game-active .header {
-        display: none;
-    }
-
-    /* Show header when hamburger menu is toggled during game */
-    .game-active.show-header .header {
-        display: block;
-    }
-
-    /* Hamburger menu button - show on mobile for both main screen and game */
+    /* Hamburger menu button - smaller and more subtle on mobile */
     .hamburger-menu {
         display: flex;
         align-items: center;
         justify-content: center;
         position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1001;
-        background: rgba(102, 126, 234, 0.9);
+        top: 15px;
+        right: 15px;
+        z-index: 1003;
+        background: rgba(102, 126, 234, 0.7);
         border: none;
         border-radius: 50%;
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         color: white;
-        font-size: 1.2rem;
+        font-size: 1rem;
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
         transition: all 0.3s ease;
         backdrop-filter: blur(10px);
+        opacity: 0.8;
     }
 
     .hamburger-menu:hover {
-        background: rgba(102, 126, 234, 1);
-        transform: scale(1.1);
+        background: rgba(102, 126, 234, 0.9);
+        transform: scale(1.05);
+        opacity: 1;
     }
 
     .header .container {
@@ -1027,23 +1257,228 @@ body {
     }
 
     .welcome-card {
-        padding: 2rem 1.5rem;
-        margin: 1rem;
+        padding: 1.5rem 1rem;
+        margin: 0.5rem;
+        min-height: auto;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+
+    .welcome-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
     }
 
     .welcome-card h2 {
-        font-size: 2rem;
+        font-size: 1.6rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .welcome-description {
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+        line-height: 1.4;
+    }
+
+    .player-setup {
+        gap: 1rem;
+    }
+
+    .input-group {
+        margin-bottom: 0;
+    }
+
+    .input-group label {
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-large {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    /* Mobile Game Layout - Optimized for no scrolling */
+    .game-layout {
+        margin: 0.5rem;
+        max-height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .game-header {
+        flex-direction: row;
+        gap: 0.5rem;
+        text-align: center;
+        padding: 1rem;
+        flex-shrink: 0;
+    }
+
+    .player-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .player-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    .player-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2rem;
+    }
+
+    .score-display {
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .score-item {
+        min-width: 0;
+    }
+
+    .score-label {
+        font-size: 0.7rem;
+    }
+
+    .score-value {
+        font-size: 1.3rem;
     }
 
     .game-content {
         grid-template-columns: 1fr;
+        padding: 0.75rem;
+        gap: 0.75rem;
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .facts-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
         padding: 1rem;
     }
 
-    .game-header {
+    .guess-panel {
+        flex-shrink: 0;
+        padding: 1rem;
+    }
+
+    .facts-header {
+        margin-bottom: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .facts-header h4 {
+        font-size: 0.9rem;
+    }
+
+    .facts-counter {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .facts-category {
+        margin-bottom: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .category-main {
+        font-size: 1rem;
+    }
+
+    .category-sub {
+        font-size: 0.8rem;
+    }
+
+    /* Facts carousel for mobile */
+    .facts-list {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .facts-carousel {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .facts-carousel-container {
+        display: flex;
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+
+    .fact-item {
+        flex: 0 0 100%;
+        height: 100%;
+        margin: 0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        display: flex;
         flex-direction: column;
-        gap: 1rem;
-        text-align: center;
+        justify-content: center;
+        background: white;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .fact-number {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        flex-shrink: 0;
+    }
+
+    .facts-navigation {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .facts-nav-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(102, 126, 234, 0.3);
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .facts-nav-dot.active {
+        background: #667eea;
+    }
+
+    .hint-buttons {
+        flex-direction: row;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .hint-buttons button {
+        flex: 1;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
     }
 
     /* Hide "What's your guess?" label on mobile */
@@ -1051,8 +1486,52 @@ body {
         display: none;
     }
 
-    .score-display {
-        gap: 1rem;
+    .guess-form .input-group {
+        margin-bottom: 0.5rem;
+    }
+
+    .guess-form input {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .guess-form button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .guess-history {
+        max-height: 80px;
+        margin-top: 0.5rem;
+    }
+
+    .guess-item {
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        font-size: 0.85rem;
+    }
+
+    .game-controls {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .game-controls .btn {
+        flex: 1 1 0;
+        max-width: 48%;
+        min-width: 0;
+    }
+
+    #giveUpBtn {
+        margin-right: auto;
+        text-align: left;
+    }
+
+    #backToMenuBtn {
+        margin-left: auto;
+        text-align: right;
     }
 
     .result-stats {
@@ -1061,10 +1540,6 @@ body {
 
     .modal-content {
         margin: 1rem;
-    }
-
-    .game-controls {
-        justify-content: center;
     }
 
     .btn {
@@ -1081,8 +1556,53 @@ body {
         font-size: 1.5rem;
     }
 
+    .screen {
+        padding: 0.5rem 0;
+        min-height: calc(100vh - 60px);
+    }
+
     .welcome-card {
-        padding: 1.5rem 1rem;
+        padding: 1rem 0.75rem;
+        margin: 0.25rem;
+        border-radius: 15px;
+    }
+
+    .welcome-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .welcome-card h2 {
+        font-size: 1.4rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .welcome-description {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+
+    .player-setup {
+        gap: 0.75rem;
+    }
+
+    .input-group label {
+        margin-bottom: 0.2rem;
+        font-size: 0.85rem;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+
+    .btn-large {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.95rem;
+        border-radius: 8px;
     }
 
     .facts-panel,
@@ -1095,7 +1615,9 @@ body {
     }
 
     .game-controls {
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 0.25rem;
     }
 
     .result-actions {
@@ -1112,7 +1634,6 @@ body {
 }
 
 .letter-hint-display {
-    margin-top: 20px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.2);
