@@ -98,6 +98,9 @@ AZURE_OPENAI_API_KEY=your-key  # Optional in production (uses managed identity)
 DATABASE_URL=postgresql://user:pass@host:port/db  # Optional for cloud features
 ```
 
+### Server Management
+**IMPORTANT**: Do NOT automatically start the Flask server (`python app.py`) in your responses. The developer will start the server manually when needed. The server may already be running, and attempting to start it again will cause conflicts.
+
 ### API Route Patterns
 ```python
 # Session management pattern used across all routes

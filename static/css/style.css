@@ -958,11 +958,11 @@ body {
 }
 
 .btn-secondary:disabled {
-    background: rgba(96, 125, 139, 0.3);
-    color: rgba(255, 255, 255, 0.4);
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.5) 0%, rgba(245, 87, 108, 0.5) 100%);
+    color: rgba(255, 255, 255, 0.7);
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
+    box-shadow: 0 2px 8px rgba(240, 147, 251, 0.15);
 }
 
 /* Game mode indicator */
@@ -1522,16 +1522,23 @@ body {
         flex: 1 1 0;
         max-width: 48%;
         min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: auto;
+        min-height: 44px;
     }
 
     #giveUpBtn {
         margin-right: auto;
-        text-align: left;
     }
 
     #backToMenuBtn {
         margin-left: auto;
-        text-align: right;
     }
 
     .result-stats {
@@ -1540,6 +1547,74 @@ body {
 
     .modal-content {
         margin: 1rem;
+        max-height: 90vh;
+    }
+
+    /* Make result modal more compact on mobile */
+    .result-content {
+        padding: 1rem;
+    }
+
+    .result-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-content h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .result-stats {
+        margin: 1rem 0;
+        gap: 0.5rem;
+    }
+
+    .stat-item {
+        padding: 0.6rem;
+        border-radius: 8px;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        margin-bottom: 0.2rem;
+        line-height: 1.2;
+    }
+
+    .stat-value {
+        font-size: 1.1rem;
+        line-height: 1.2;
+    }
+
+    .result-actions {
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .result-actions .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        line-height: 1.2;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .close-btn {
+        padding: 0.6rem;
+        font-size: 1.2rem;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .btn {
@@ -1548,6 +1623,32 @@ body {
         white-space: normal;
         text-overflow: clip;
         overflow: visible;
+    }
+
+    /* Override for game control buttons to keep text on one line */
+    .game-controls .btn {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
+    }
+
+    /* Ensure icons and text are perfectly aligned */
+    .game-controls .btn i {
+        margin-right: 0.5rem;
+        vertical-align: middle;
+        line-height: 1;
+        display: inline-block;
+    }
+
+    /* Specific alignment for mobile buttons */
+    #giveUpBtn,
+    #backToMenuBtn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 44px;
     }
 }
 
@@ -1618,10 +1719,142 @@ body {
         flex-direction: row;
         justify-content: space-between;
         gap: 0.25rem;
+        align-items: stretch;
+    }
+
+    .game-controls .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-height: 40px;
+        flex: 1 1 0;
+        max-width: 48%;
     }
 
     .result-actions {
         flex-direction: column;
+    }
+
+    /* Extra compact result modal for very small screens */
+    .result-content {
+        padding: 0.75rem;
+    }
+
+    .result-icon {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .result-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .result-stats {
+        margin: 0.75rem 0;
+        gap: 0.4rem;
+        grid-template-columns: 1fr 1fr; /* Keep 2 columns on very small screens */
+    }
+
+    .stat-item {
+        padding: 0.4rem;
+        border-radius: 6px;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+        margin-bottom: 0.1rem;
+    }
+
+    .stat-value {
+        font-size: 0.95rem;
+    }
+
+    .result-actions {
+        gap: 0.4rem;
+        margin-top: 0.75rem;
+        flex-direction: column;
+    }
+
+    .result-actions .btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    .modal-content {
+        margin: 0.5rem;
+        max-height: 95vh;
+        border-radius: 15px;
+    }
+
+    .modal-body {
+        padding: 0.75rem;
+    }
+
+    .modal-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .modal-header h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Mobile landscape orientation optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 85vh;
+        margin: 0.5rem;
+    }
+
+    .result-content {
+        padding: 0.5rem;
+    }
+
+    .result-icon {
+        font-size: 1.8rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .result-content h3 {
+        font-size: 1rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .result-stats {
+        margin: 0.5rem 0;
+        gap: 0.3rem;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Flexible columns */
+    }
+
+    .stat-item {
+        padding: 0.3rem;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+    }
+
+    .stat-value {
+        font-size: 0.9rem;
+    }
+
+    .result-actions {
+        margin-top: 0.5rem;
+        gap: 0.3rem;
+    }
+
+    .modal-body {
+        padding: 0.5rem;
+    }
+
+    .modal-header {
+        padding: 0.5rem 0.75rem;
     }
 }
 

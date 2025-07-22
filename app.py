@@ -902,10 +902,46 @@ class WebGameSession:
         
         self.rounds.append(round_obj)
         self.rounds_completed += 1
-        self._save_round_history(round_obj, correct, time_taken)
+        
+        # Save round to database immediately
+        self._save_round_to_database(round_obj, time_taken)
         
         feedback = self._get_round_feedback(auto_revealed)
         return self._build_round_result(correct, round_obj, time_taken, similarity, feedback, auto_revealed)
+    
+    def _save_round_to_database(self, round_obj: GameRound, time_taken: float) -> None:
+        """Save round data to database immediately"""
+        try:
+            round_data = {
+                'player_name': self.player_name,
+                'item_name': round_obj.item_name,
+                'category': round_obj.category,
+                'subcategory': round_obj.subcategory,
+                'difficulty': self.difficulty.get('name', 'normal') if self.difficulty else 'normal',
+                'language': self.language,
+                'facts_revealed': round_obj.facts_shown,
+                'total_facts': round_obj.total_facts,
+                'guessed_correctly': round_obj.correct,
+                'guess_attempts': round_obj.guess_attempts,
+                'final_guess': self.guesses[-1] if self.guesses else '',
+                'similarity_score': round_obj.similarity_score,
+                'match_type': round_obj.match_type,
+                'time_taken': round_obj.time_taken,
+                'round_score': round_obj.round_score
+            }
+            
+            # Save to database (without session_id for now - will be linked when session is saved)
+            if db_handler and db_handler.is_connected():
+                success = db_handler.save_round(None, round_data, self.current_question_id)
+                if success:
+                    logger.debug(f"Round saved to database: {round_obj.item_name} ({'correct' if round_obj.correct else 'incorrect'})")
+                else:
+                    logger.warning(f"Failed to save round to database: {round_obj.item_name}")
+            else:
+                logger.warning("Database not connected, round not saved")
+            
+        except Exception as e:
+            logger.error(f"Error saving round to database: {e}")
 
     def _create_game_round(self, correct: bool, similarity: float, match_type: str, time_taken: float) -> GameRound:
         """Create a GameRound object for scoring"""
@@ -941,7 +977,7 @@ class WebGameSession:
         self.total_score += round_obj.round_score
 
     def _save_round_history(self, round_obj: GameRound, correct: bool, time_taken: float) -> None:
-        """Save round data to history"""
+        """Save round data to history and database"""
         try:
             round_record = {
                 'category': self.current_category,
@@ -955,6 +991,29 @@ class WebGameSession:
             
             self.round_history.append(type('RoundRecord', (), round_record)())
             logger.info(f"Round completed: {self.current_item} ({'correct' if correct else 'incorrect'})")
+            
+            # Also save round to database immediately
+            round_data = {
+                'player_name': self.player_name,
+                'item_name': round_obj.item_name,
+                'category': round_obj.category,
+                'subcategory': round_obj.subcategory,
+                'difficulty': getattr(self, 'current_difficulty', 'normal'),
+                'language': getattr(self, 'current_language', 'en'),
+                'facts_revealed': round_obj.facts_shown,
+                'total_facts': round_obj.total_facts,
+                'guessed_correctly': round_obj.correct,
+                'guess_attempts': round_obj.guess_attempts,
+                'final_guess': self.guesses[-1] if self.guesses else '',
+                'similarity_score': round_obj.similarity_score,
+                'match_type': round_obj.match_type,
+                'time_taken': round_obj.time_taken,
+                'round_score': round_obj.round_score
+            }
+            
+            # Save to database (without session_id for now - will be linked when session is saved)
+            if db_handler and db_handler.is_connected():
+                db_handler.save_round(None, round_data)
             
         except Exception as db_error:
             logger.error(f"Failed to save round data: {db_error}")

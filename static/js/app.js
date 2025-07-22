@@ -43,6 +43,7 @@ const translations = {
         hints_remaining: "Hints Remaining",
         letter_revealed: "Letter revealed!",
         no_hints_left: "No Hints",
+        no_letters_left: "No Letters", 
         no_more_letters: "No more letters to reveal",
 
         // Scoring system
@@ -200,7 +201,8 @@ const translations = {
         hints_used: "Użyte Podpowiedzi",
         hints_remaining: "Pozostałe Podpowiedzi",
         letter_revealed: "Litera ujawniona!",
-        no_hints_left: "Brak Wskazówek",
+        no_hints_left: "Brak Wskazówek", 
+        no_letters_left: "Brak Liter",
         no_more_letters: "Nie ma więcej liter do ujawnienia",
 
         // Scoring system
@@ -223,7 +225,7 @@ const translations = {
         time_taken: "Czas Wykonania",
         facts_used: "Użyte Fakty",
         play_again: "Zagraj Ponownie",
-        change_player: "Zmień Gracza",
+        change_player: "Zakończ Grę",
 
         // Modals
         global_leaderboard: "Globalny Ranking",
@@ -647,11 +649,15 @@ class GameApp {
         const getLetterHintBtn = document.getElementById('getLetterHintBtn');
 
         getFactBtn.addEventListener('click', () => {
-            this.requestFact();
+            if (!getFactBtn.disabled) {
+                this.requestFact();
+            }
         });
 
         getLetterHintBtn.addEventListener('click', () => {
-            this.getLetterHint();
+            if (!getLetterHintBtn.disabled) {
+                this.getLetterHint();
+            }
         });
 
         guessInput.addEventListener('keypress', (e) => {
@@ -1086,7 +1092,12 @@ class GameApp {
             this.showToast(this.t('failed_get_fact'), 'error');
         } finally {
             setTimeout(() => {
-                document.getElementById('getFactBtn').disabled = false;
+                const button = document.getElementById('getFactBtn');
+                // Only re-enable if it's not in a disabled "no hints" state and facts < 5
+                const factsShown = parseInt(document.getElementById('factsShown').textContent) || 0;
+                if (factsShown < 5 && (!button.disabled || !button.innerHTML.includes(this.t('no_hints_left')))) {
+                    button.disabled = false;
+                }
             }, 1000);
         }
     }
@@ -1134,7 +1145,7 @@ class GameApp {
             const revealed = (hintLetters.textContent.match(/[^_\s]/g) || []).length;
             if (revealed >= 3) {
                 letterHintBtn.disabled = true;
-                letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+                letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_letters_left')}`;
             } else {
                 letterHintBtn.disabled = false;
                 letterHintBtn.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
@@ -1199,9 +1210,7 @@ class GameApp {
         // Add navigation dot
         const dot = document.createElement('div');
         dot.className = 'facts-nav-dot';
-        dot.addEventListener('click', () => {
-            this.goToFact(data.fact_number - 1);
-        });
+        dot.dataset.factIndex = data.fact_number - 1; // Store index in data attribute
         navigation.appendChild(dot);
 
         console.log('🎯 Updating carousel, going to fact:', data.fact_number - 1);
@@ -1212,25 +1221,39 @@ class GameApp {
 
     updateCarousel() {
         const factsList = document.getElementById('factsList');
-        const dots = factsList.querySelectorAll('.facts-nav-dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === this.currentFactIndex);
-        });
+        if (!factsList) return;
+        
+        const navigation = factsList.querySelector('.facts-navigation');
+        if (!navigation) return;
+        
+        // Use more efficient approach - get all dots at once and cache the result
+        const dots = navigation.children;
+        for (let i = 0; i < dots.length; i++) {
+            const isActive = i === this.currentFactIndex;
+            dots[i].classList.toggle('active', isActive);
+        }
     }
 
     goToFact(index) {
         const factsList = document.getElementById('factsList');
+        if (!factsList) return;
+        
         const carouselContainer = factsList.querySelector('.facts-carousel-container');
-
         if (!carouselContainer) return;
 
         const totalFacts = carouselContainer.children.length;
 
-        if (index < 0 || index >= totalFacts) return;
+        // Clamp index to valid range
+        index = Math.max(0, Math.min(index, totalFacts - 1));
+
+        // Only update if index actually changed
+        if (this.currentFactIndex === index) return;
 
         this.currentFactIndex = index;
+        
+        // Use transform3d for better performance (GPU acceleration)
         const translateX = -index * 100;
-        carouselContainer.style.transform = `translateX(${translateX}%)`;
+        carouselContainer.style.transform = `translate3d(${translateX}%, 0, 0)`;
 
         this.updateCarousel();
     }
@@ -1253,19 +1276,33 @@ class GameApp {
 
         if (carouselDots) {
             carouselDots.innerHTML = '';
+            
+            // Add event delegation for navigation dots (performance optimization)
+            carouselDots.addEventListener('click', (e) => {
+                if (e.target.classList.contains('facts-nav-dot')) {
+                    const factIndex = parseInt(e.target.dataset.factIndex);
+                    if (!isNaN(factIndex)) {
+                        this.goToFact(factIndex);
+                    }
+                }
+            });
         }
 
-        // Handle window resize to switch between desktop and mobile views
+        // Handle window resize to switch between desktop and mobile views (throttled)
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            const isMobile = window.innerWidth <= 768;
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const isMobile = window.innerWidth <= 768;
 
-            if (isMobile && this.gameActive && carouselContainer && carouselContainer.children.length > 0) {
-                // Mobile view - carousel structure is already in place
-                console.log('Switched to mobile carousel view');
-            } else if (!isMobile) {
-                // Desktop view - traditional list
-                // Will be handled by the general game logic
-            }
+                if (isMobile && this.gameActive && carouselContainer && carouselContainer.children.length > 0) {
+                    // Mobile view - carousel structure is already in place
+                    console.log('Switched to mobile carousel view');
+                } else if (!isMobile) {
+                    // Desktop view - traditional list
+                    // Will be handled by the general game logic
+                }
+            }, 100); // Throttle resize events to every 100ms
         });
 
         // Add touch/swipe support for mobile
@@ -1282,6 +1319,8 @@ class GameApp {
         let startX = 0;
         let currentX = 0;
         let isDragging = false;
+        let lastSwipeTime = 0;
+        const swipeDebounceTime = 200; // Prevent rapid swipes
 
         // Use passive: true for touchstart
         carouselContainer.addEventListener('touchstart', (e) => {
@@ -1300,10 +1339,18 @@ class GameApp {
         carouselContainer.addEventListener('touchend', () => {
             if (!isDragging) return;
 
+            const now = Date.now();
             const diffX = startX - currentX;
             const threshold = 50; // Minimum swipe distance
 
+            // Debounce rapid swipes
+            if (now - lastSwipeTime < swipeDebounceTime) {
+                isDragging = false;
+                return;
+            }
+
             if (Math.abs(diffX) > threshold) {
+                lastSwipeTime = now;
                 if (diffX > 0) {
                     // Swipe left - next fact
                     this.goToFact(this.currentFactIndex + 1);
@@ -1345,8 +1392,11 @@ class GameApp {
         } finally {
             setTimeout(() => {
                 const button = document.getElementById('getLetterHintBtn');
-                button.disabled = false;
-                button.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
+                // Only reset button text if it's not in a disabled "no letters" state
+                if (!button.disabled || !button.innerHTML.includes(this.t('no_letters_left'))) {
+                    button.disabled = false;
+                    button.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
+                }
             }, 1000);
         }
     }
@@ -1380,10 +1430,10 @@ class GameApp {
                 const revealed = (hintLetters.textContent.match(/[^_\s]/g) || []).length;
                 if (revealed >= 3) {
                     letterHintBtn.disabled = true;
-                    letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+                    letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_letters_left')}`;
                 } else if (data.hints_remaining === 0) {
                     letterHintBtn.disabled = true;
-                    letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+                    letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_letters_left')}`;
                 } else {
                     letterHintBtn.disabled = false;
                     letterHintBtn.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;
@@ -2503,7 +2553,7 @@ class GameApp {
             const revealed = (hintLetters.textContent.match(/[^_\s]/g) || []).length;
             if (revealed >= 3) {
                 letterHintBtn.disabled = true;
-                letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_hints_left')}`;
+                letterHintBtn.innerHTML = `<i class="fas fa-ban"></i> ${this.t('no_letters_left')}`;
             } else {
                 letterHintBtn.disabled = false;
                 letterHintBtn.innerHTML = `<i class="fas fa-font"></i> ${this.t('get_letter_hint')}`;

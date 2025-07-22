@@ -240,28 +240,37 @@ class PostgreSQLHandler:
                     );
                 """)
                 
-                # Create game_rounds table  
+                # Create game_rounds table with comprehensive tracking
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS game_rounds (
                         id SERIAL PRIMARY KEY,
                         session_id INTEGER,
                         question_id INTEGER,
-                        player_name VARCHAR(255),
+                        player_name VARCHAR(255) NOT NULL,
                         item_name VARCHAR(255) NOT NULL,
-                        category VARCHAR(100),
+                        category VARCHAR(100) NOT NULL,
                         subcategory VARCHAR(100),
-                        difficulty VARCHAR(50),
+                        difficulty VARCHAR(50) DEFAULT 'normal',
                         language VARCHAR(10) DEFAULT 'en',
                         facts_revealed INTEGER DEFAULT 0,
                         total_facts INTEGER DEFAULT 5,
+                        hints_used INTEGER DEFAULT 0,
+                        max_hints INTEGER DEFAULT 3,
                         guessed_correctly BOOLEAN DEFAULT FALSE,
                         guess_attempts INTEGER DEFAULT 0,
-                        final_guess VARCHAR(255),
+                        final_guess VARCHAR(500),
+                        all_guesses TEXT,
                         similarity_score DECIMAL(5,4) DEFAULT 0.0,
                         match_type VARCHAR(50),
                         time_taken DECIMAL(10,3) DEFAULT 0.0,
                         round_score INTEGER DEFAULT 0,
+                        base_score INTEGER DEFAULT 0,
+                        score_multiplier DECIMAL(3,2) DEFAULT 1.0,
+                        gave_up BOOLEAN DEFAULT FALSE,
+                        auto_revealed BOOLEAN DEFAULT FALSE,
+                        game_mode VARCHAR(20) DEFAULT 'online',
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE SET NULL,
                         FOREIGN KEY (question_id) REFERENCES generated_questions(id) ON DELETE SET NULL
                     );
@@ -371,6 +380,135 @@ class PostgreSQLHandler:
             if self.connection:
                 self.connection.rollback()
     
+    def upgrade_game_rounds_table(self) -> bool:
+        """Drop and recreate the game_rounds table with improved structure."""
+        if not self.is_connected():
+            self.logger.warning("Not connected to database, cannot upgrade table")
+            return False
+        
+        assert self.connection is not None  # Type hint for type checker
+        try:
+            with self.connection.cursor() as cursor:
+                self.logger.info("Upgrading game_rounds table structure...")
+                
+                # Backup existing data if any
+                cursor.execute("SELECT COUNT(*) FROM game_rounds")
+                result = cursor.fetchone()
+                existing_count = result[0] if result else 0
+                
+                if existing_count > 0:
+                    self.logger.warning(f"Found {existing_count} existing rounds. Creating backup...")
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS game_rounds_backup AS 
+                        SELECT * FROM game_rounds
+                    """)
+                    self.logger.info("Backup created as game_rounds_backup")
+                
+                # Drop the existing table
+                cursor.execute("DROP TABLE IF EXISTS game_rounds CASCADE")
+                
+                # Create the new improved table
+                cursor.execute("""
+                    CREATE TABLE game_rounds (
+                        id SERIAL PRIMARY KEY,
+                        session_id INTEGER,
+                        question_id INTEGER,
+                        player_name VARCHAR(255) NOT NULL,
+                        item_name VARCHAR(255) NOT NULL,
+                        category VARCHAR(100) NOT NULL,
+                        subcategory VARCHAR(100),
+                        difficulty VARCHAR(50) DEFAULT 'normal',
+                        language VARCHAR(10) DEFAULT 'en',
+                        facts_revealed INTEGER DEFAULT 0,
+                        total_facts INTEGER DEFAULT 5,
+                        hints_used INTEGER DEFAULT 0,
+                        max_hints INTEGER DEFAULT 3,
+                        guessed_correctly BOOLEAN DEFAULT FALSE,
+                        guess_attempts INTEGER DEFAULT 0,
+                        final_guess VARCHAR(500),
+                        all_guesses TEXT,
+                        similarity_score DECIMAL(5,4) DEFAULT 0.0,
+                        match_type VARCHAR(50),
+                        time_taken DECIMAL(10,3) DEFAULT 0.0,
+                        round_score INTEGER DEFAULT 0,
+                        base_score INTEGER DEFAULT 0,
+                        score_multiplier DECIMAL(3,2) DEFAULT 1.0,
+                        gave_up BOOLEAN DEFAULT FALSE,
+                        auto_revealed BOOLEAN DEFAULT FALSE,
+                        game_mode VARCHAR(20) DEFAULT 'online',
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE SET NULL,
+                        FOREIGN KEY (question_id) REFERENCES generated_questions(id) ON DELETE SET NULL
+                    );
+                """)
+                
+                # Create optimized indexes
+                cursor.execute("CREATE INDEX idx_game_rounds_session_id ON game_rounds(session_id)")
+                cursor.execute("CREATE INDEX idx_game_rounds_player_name ON game_rounds(player_name)")
+                cursor.execute("CREATE INDEX idx_game_rounds_category ON game_rounds(category)")
+                cursor.execute("CREATE INDEX idx_game_rounds_difficulty ON game_rounds(difficulty)")
+                cursor.execute("CREATE INDEX idx_game_rounds_language ON game_rounds(language)")
+                cursor.execute("CREATE INDEX idx_game_rounds_created_at ON game_rounds(created_at)")
+                cursor.execute("CREATE INDEX idx_game_rounds_guessed_correctly ON game_rounds(guessed_correctly)")
+                cursor.execute("CREATE INDEX idx_game_rounds_game_mode ON game_rounds(game_mode)")
+                
+                # Create composite indexes for common queries
+                cursor.execute("CREATE INDEX idx_game_rounds_player_category ON game_rounds(player_name, category)")
+                cursor.execute("CREATE INDEX idx_game_rounds_player_difficulty ON game_rounds(player_name, difficulty)")
+                cursor.execute("CREATE INDEX idx_game_rounds_player_language ON game_rounds(player_name, language)")
+                
+                # Create trigger for updated_at
+                cursor.execute("""
+                    CREATE OR REPLACE FUNCTION update_updated_at_column()
+                    RETURNS TRIGGER AS $$
+                    BEGIN
+                        NEW.updated_at = NOW();
+                        RETURN NEW;
+                    END;
+                    $$ language 'plpgsql';
+                """)
+                
+                cursor.execute("""
+                    CREATE TRIGGER update_game_rounds_updated_at 
+                    BEFORE UPDATE ON game_rounds 
+                    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+                """)
+                
+                # Restore data if backup exists
+                if existing_count > 0:
+                    self.logger.info("Attempting to restore data from backup...")
+                    cursor.execute("""
+                        INSERT INTO game_rounds (
+                            session_id, question_id, player_name, item_name, category, 
+                            subcategory, difficulty, language, facts_revealed, total_facts,
+                            guessed_correctly, guess_attempts, final_guess, similarity_score,
+                            match_type, time_taken, round_score, created_at
+                        )
+                        SELECT 
+                            session_id, question_id, player_name, item_name, category,
+                            subcategory, difficulty, language, facts_revealed, total_facts,
+                            guessed_correctly, guess_attempts, final_guess, similarity_score,
+                            match_type, time_taken, round_score, created_at
+                        FROM game_rounds_backup
+                    """)
+                    
+                    restored_count = cursor.rowcount
+                    self.logger.info(f"Restored {restored_count} rounds from backup")
+                
+                self.connection.commit()
+                self.logger.info("Game rounds table upgrade completed successfully")
+                return True
+                
+        except psycopg2.Error as e:
+            self.logger.error(f"Error upgrading game_rounds table: {e}")
+            self.connection.rollback()
+            return False
+        except Exception as e:
+            self.logger.error(f"Unexpected error upgrading game_rounds table: {e}")
+            self.connection.rollback()
+            return False
+    
     def is_connected(self) -> bool:
         """Check if connection is active."""
         if not self.is_connected_flag or not self.connection:
@@ -450,6 +588,62 @@ class PostgreSQLHandler:
                 if result:
                     session_id = result[0]
                     self.logger.debug(f"Saved session {session_id} for player {session.player_name}")
+                    
+                    # Now save individual rounds to game_rounds table
+                    rounds_saved = 0
+                    for round_obj in session.rounds:
+                        round_data = {}
+                        
+                        if hasattr(round_obj, 'get'):
+                            # Already a dictionary
+                            round_data = {
+                                'player_name': session.player_name,
+                                'item_name': round_obj.get('word', ''),
+                                'category': round_obj.get('category', ''),
+                                'subcategory': round_obj.get('subcategory', ''),
+                                'difficulty': round_obj.get('difficulty', 'normal'),
+                                'language': round_obj.get('language', 'en'),
+                                'facts_revealed': round_obj.get('facts_shown', 0),
+                                'total_facts': round_obj.get('total_facts', 5),
+                                'guessed_correctly': round_obj.get('won', False),
+                                'guess_attempts': len(round_obj.get('guesses', [])),
+                                'final_guess': round_obj.get('guesses', [''])[-1] if round_obj.get('guesses') else '',
+                                'similarity_score': round_obj.get('similarity_score', 0.0),
+                                'match_type': round_obj.get('match_type', ''),
+                                'time_taken': round_obj.get('time_taken', 0.0),
+                                'round_score': round_obj.get('score', 0)
+                            }
+                        else:
+                            # GameRound object, convert to dictionary
+                            round_data = {
+                                'player_name': session.player_name,
+                                'item_name': round_obj.item_name,
+                                'category': round_obj.category,
+                                'subcategory': round_obj.subcategory,
+                                'difficulty': getattr(round_obj, 'difficulty', 'normal'),
+                                'language': getattr(round_obj, 'language', 'en'),
+                                'facts_revealed': round_obj.facts_shown,
+                                'total_facts': round_obj.total_facts,
+                                'guessed_correctly': round_obj.correct,
+                                'guess_attempts': round_obj.guess_attempts,
+                                'final_guess': getattr(round_obj, 'final_guess', ''),
+                                'similarity_score': round_obj.similarity_score,
+                                'match_type': round_obj.match_type,
+                                'time_taken': round_obj.time_taken,
+                                'round_score': round_obj.round_score
+                            }
+                        
+                        # Save this round to game_rounds table
+                        if self.save_round(session_id, round_data):
+                            rounds_saved += 1
+                    
+                    self.logger.debug(f"Saved {rounds_saved}/{len(session.rounds)} rounds to game_rounds table")
+                    
+                    # Also link any orphaned rounds (saved during gameplay) to this session
+                    orphaned_rounds_updated = self.update_rounds_with_session_id(session_id, session.player_name)
+                    if orphaned_rounds_updated > 0:
+                        self.logger.debug(f"Linked {orphaned_rounds_updated} orphaned rounds to session {session_id}")
+                    
                     return True
                 else:
                     self.logger.error("Failed to get session ID after insert")
@@ -461,6 +655,253 @@ class PostgreSQLHandler:
         except Exception as e:
             self.logger.error(f"Unexpected error saving session: {e}")
             return False
+    
+    def save_round(self, session_id: Optional[int], round_data: Dict, question_id: Optional[int] = None) -> bool:
+        """Save an individual round to the game_rounds table with enhanced tracking."""
+        if not self.is_connected() or not self.connection:
+            self.logger.warning("Not connected to database, cannot save round")
+            return False
+        
+        try:
+            with self.connection.cursor() as cursor:
+                # Extract all guesses as JSON string
+                all_guesses = round_data.get('all_guesses', [])
+                if isinstance(all_guesses, list):
+                    import json
+                    all_guesses_str = json.dumps(all_guesses) if all_guesses else None
+                else:
+                    all_guesses_str = str(all_guesses) if all_guesses else None
+                
+                cursor.execute("""
+                    INSERT INTO game_rounds 
+                    (session_id, question_id, player_name, item_name, category, subcategory, 
+                     difficulty, language, facts_revealed, total_facts, hints_used, max_hints,
+                     guessed_correctly, guess_attempts, final_guess, all_guesses, 
+                     similarity_score, match_type, time_taken, round_score, base_score, 
+                     score_multiplier, gave_up, auto_revealed, game_mode)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id
+                """, (
+                    session_id,
+                    question_id,
+                    round_data.get('player_name', ''),
+                    round_data.get('item_name', ''),
+                    round_data.get('category', ''),
+                    round_data.get('subcategory', ''),
+                    round_data.get('difficulty', 'normal'),
+                    round_data.get('language', 'en'),
+                    round_data.get('facts_revealed', 0),
+                    round_data.get('total_facts', 5),
+                    round_data.get('hints_used', 0),
+                    round_data.get('max_hints', 3),
+                    round_data.get('guessed_correctly', False),
+                    round_data.get('guess_attempts', 0),
+                    round_data.get('final_guess', ''),
+                    all_guesses_str,
+                    round_data.get('similarity_score', 0.0),
+                    round_data.get('match_type', ''),
+                    round_data.get('time_taken', 0.0),
+                    round_data.get('round_score', 0),
+                    round_data.get('base_score', 0),
+                    round_data.get('score_multiplier', 1.0),
+                    round_data.get('gave_up', False),
+                    round_data.get('auto_revealed', False),
+                    round_data.get('game_mode', 'online')
+                ))
+                
+                result = cursor.fetchone()
+                if result:
+                    round_id = result[0]
+                    self.logger.debug(f"Saved enhanced round {round_id} for session {session_id}")
+                    return True
+                else:
+                    self.logger.error("Failed to get round ID after insert")
+                    return False
+                
+        except psycopg2.Error as e:
+            self.logger.error(f"Error saving round: {e}")
+            return False
+        except Exception as e:
+            self.logger.error(f"Unexpected error saving round: {e}")
+            return False
+    
+    def update_rounds_with_session_id(self, session_id: int, player_name: str) -> int:
+        """Update rounds without session_id to link them to a completed session."""
+        if not self.is_connected() or not self.connection:
+            self.logger.warning("Not connected to database, cannot update rounds")
+            return 0
+        
+        try:
+            with self.connection.cursor() as cursor:
+                # Update rounds that don't have a session_id but match the player
+                cursor.execute("""
+                    UPDATE game_rounds 
+                    SET session_id = %s 
+                    WHERE session_id IS NULL 
+                    AND player_name = %s 
+                    AND created_at >= NOW() - INTERVAL '1 hour'
+                    ORDER BY created_at DESC
+                """, (session_id, player_name))
+                
+                updated_count = cursor.rowcount
+                self.logger.debug(f"Updated {updated_count} rounds with session_id {session_id}")
+                return updated_count
+                
+        except psycopg2.Error as e:
+            self.logger.error(f"Error updating rounds with session_id: {e}")
+            return 0
+        except Exception as e:
+            self.logger.error(f"Unexpected error updating rounds with session_id: {e}")
+            return 0
+    
+    def get_player_round_stats(self, player_name: str) -> Dict:
+        """Get enhanced detailed round statistics for a player using new tracking fields."""
+        if not self.is_connected() or not self.connection:
+            return {}
+        
+        try:
+            with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Get comprehensive round statistics with new fields
+                cursor.execute("""
+                    SELECT 
+                        COUNT(*) as total_rounds,
+                        COUNT(*) FILTER (WHERE guessed_correctly = true) as rounds_won,
+                        COUNT(*) FILTER (WHERE guessed_correctly = false) as rounds_lost,
+                        COUNT(*) FILTER (WHERE gave_up = true) as rounds_gave_up,
+                        COUNT(*) FILTER (WHERE auto_revealed = true) as rounds_auto_revealed,
+                        AVG(round_score) as avg_score,
+                        AVG(base_score) as avg_base_score,
+                        AVG(score_multiplier) as avg_multiplier,
+                        AVG(time_taken) as avg_time,
+                        AVG(facts_revealed) as avg_facts_used,
+                        AVG(hints_used) as avg_hints_used,
+                        AVG(guess_attempts) as avg_attempts,
+                        MAX(round_score) as best_round_score,
+                        MIN(time_taken) FILTER (WHERE guessed_correctly = true) as fastest_win_time,
+                        COUNT(*) FILTER (WHERE game_mode = 'online') as online_rounds,
+                        COUNT(*) FILTER (WHERE game_mode = 'offline') as offline_rounds,
+                        SUM(round_score) as total_score
+                    FROM game_rounds 
+                    WHERE player_name = %s
+                """, (player_name,))
+                
+                stats = dict(cursor.fetchone() or {})
+                
+                # Get category breakdown with enhanced metrics
+                cursor.execute("""
+                    SELECT 
+                        category,
+                        COUNT(*) as rounds,
+                        COUNT(*) FILTER (WHERE guessed_correctly = true) as wins,
+                        AVG(round_score) as avg_score,
+                        AVG(hints_used) as avg_hints,
+                        AVG(facts_revealed) as avg_facts,
+                        AVG(score_multiplier) as avg_multiplier
+                    FROM game_rounds 
+                    WHERE player_name = %s
+                    GROUP BY category
+                    ORDER BY rounds DESC
+                """, (player_name,))
+                
+                categories = [dict(row) for row in cursor.fetchall()]
+                stats['categories'] = categories
+                
+                # Get difficulty breakdown with enhanced metrics
+                cursor.execute("""
+                    SELECT 
+                        difficulty,
+                        COUNT(*) as rounds,
+                        COUNT(*) FILTER (WHERE guessed_correctly = true) as wins,
+                        AVG(round_score) as avg_score,
+                        AVG(base_score) as avg_base_score,
+                        AVG(score_multiplier) as avg_multiplier,
+                        AVG(hints_used) as avg_hints,
+                        AVG(time_taken) as avg_time
+                    FROM game_rounds 
+                    WHERE player_name = %s
+                    GROUP BY difficulty
+                    ORDER BY 
+                        CASE difficulty 
+                            WHEN 'easy' THEN 1 
+                            WHEN 'normal' THEN 2 
+                            WHEN 'hard' THEN 3 
+                            ELSE 4 
+                        END
+                """, (player_name,))
+                
+                difficulties = [dict(row) for row in cursor.fetchall()]
+                stats['difficulties'] = difficulties
+                
+                # Get hint usage statistics
+                cursor.execute("""
+                    SELECT 
+                        hints_used,
+                        COUNT(*) as rounds,
+                        COUNT(*) FILTER (WHERE guessed_correctly = true) as wins,
+                        AVG(round_score) as avg_score
+                    FROM game_rounds 
+                    WHERE player_name = %s
+                    GROUP BY hints_used
+                    ORDER BY hints_used
+                """, (player_name,))
+                
+                hint_stats = [dict(row) for row in cursor.fetchall()]
+                stats['hint_usage'] = hint_stats
+                
+                # Get game mode statistics
+                cursor.execute("""
+                    SELECT 
+                        game_mode,
+                        COUNT(*) as rounds,
+                        COUNT(*) FILTER (WHERE guessed_correctly = true) as wins,
+                        AVG(round_score) as avg_score,
+                        AVG(time_taken) as avg_time
+                    FROM game_rounds 
+                    WHERE player_name = %s
+                    GROUP BY game_mode
+                """, (player_name,))
+                
+                game_modes = [dict(row) for row in cursor.fetchall()]
+                stats['game_modes'] = game_modes
+                
+                return stats
+                
+        except psycopg2.Error as e:
+            self.logger.error(f"Error getting player round stats: {e}")
+            return {}
+        except Exception as e:
+            self.logger.error(f"Unexpected error getting player round stats: {e}")
+            return {}
+    
+    def get_recent_rounds(self, player_name: Optional[str] = None, limit: int = 10) -> List[Dict]:
+        """Get recent rounds, optionally filtered by player."""
+        if not self.is_connected() or not self.connection:
+            return []
+        
+        try:
+            with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+                if player_name:
+                    cursor.execute("""
+                        SELECT * FROM game_rounds 
+                        WHERE player_name = %s 
+                        ORDER BY created_at DESC 
+                        LIMIT %s
+                    """, (player_name, limit))
+                else:
+                    cursor.execute("""
+                        SELECT * FROM game_rounds 
+                        ORDER BY created_at DESC 
+                        LIMIT %s
+                    """, (limit,))
+                
+                return [dict(row) for row in cursor.fetchall()]
+                
+        except psycopg2.Error as e:
+            self.logger.error(f"Error getting recent rounds: {e}")
+            return []
+        except Exception as e:
+            self.logger.error(f"Unexpected error getting recent rounds: {e}")
+            return []
     
     def get_top_sessions(self, limit: int = 10) -> List[Dict]:
         """Get top scoring sessions."""
