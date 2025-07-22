@@ -472,7 +472,12 @@
                     "world capitals": "stolice świata",
                     "world currencies": "waluty światowe",
                     "writing systems": "systemy pisma",
-                    "written communication": "komunikacja pisemna"
+                    "written communication": "komunikacja pisemna",
+                    "2d shapes": "kształty 2D",
+                    "3d shapes": "kształty 3D",
+                    "asian countries": "kraje azjatyckie",
+                    "european countries": "kraje europejskie",
+                    "olympic events": "dyscypliny olimpijskie"
                 }
             }
         }

@@ -1757,7 +1757,8 @@ body {
     .result-stats {
         margin: 0.75rem 0;
         gap: 0.4rem;
-        grid-template-columns: 1fr 1fr; /* Keep 2 columns on very small screens */
+        grid-template-columns: 1fr 1fr;
+        /* Keep 2 columns on very small screens */
     }
 
     .stat-item {
@@ -1829,7 +1830,8 @@ body {
     .result-stats {
         margin: 0.5rem 0;
         gap: 0.3rem;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Flexible columns */
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        /* Flexible columns */
     }
 
     .stat-item {

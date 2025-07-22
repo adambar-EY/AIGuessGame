@@ -43,7 +43,7 @@ const translations = {
         hints_remaining: "Hints Remaining",
         letter_revealed: "Letter revealed!",
         no_hints_left: "No Hints",
-        no_letters_left: "No Letters", 
+        no_letters_left: "No Letters",
         no_more_letters: "No more letters to reveal",
 
         // Scoring system
@@ -201,7 +201,7 @@ const translations = {
         hints_used: "Użyte Podpowiedzi",
         hints_remaining: "Pozostałe Podpowiedzi",
         letter_revealed: "Litera ujawniona!",
-        no_hints_left: "Brak Wskazówek", 
+        no_hints_left: "Brak Wskazówek",
         no_letters_left: "Brak Liter",
         no_more_letters: "Nie ma więcej liter do ujawnienia",
 
@@ -1222,10 +1222,10 @@ class GameApp {
     updateCarousel() {
         const factsList = document.getElementById('factsList');
         if (!factsList) return;
-        
+
         const navigation = factsList.querySelector('.facts-navigation');
         if (!navigation) return;
-        
+
         // Use more efficient approach - get all dots at once and cache the result
         const dots = navigation.children;
         for (let i = 0; i < dots.length; i++) {
@@ -1237,7 +1237,7 @@ class GameApp {
     goToFact(index) {
         const factsList = document.getElementById('factsList');
         if (!factsList) return;
-        
+
         const carouselContainer = factsList.querySelector('.facts-carousel-container');
         if (!carouselContainer) return;
 
@@ -1250,7 +1250,7 @@ class GameApp {
         if (this.currentFactIndex === index) return;
 
         this.currentFactIndex = index;
-        
+
         // Use transform3d for better performance (GPU acceleration)
         const translateX = -index * 100;
         carouselContainer.style.transform = `translate3d(${translateX}%, 0, 0)`;
@@ -1276,7 +1276,7 @@ class GameApp {
 
         if (carouselDots) {
             carouselDots.innerHTML = '';
-            
+
             // Add event delegation for navigation dots (performance optimization)
             carouselDots.addEventListener('click', (e) => {
                 if (e.target.classList.contains('facts-nav-dot')) {
