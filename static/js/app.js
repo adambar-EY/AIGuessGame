@@ -827,7 +827,7 @@ class GameApp {
             if (this.currentLanguage === 'pl') {
                 displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1).toLowerCase();
             }
-            option.textContent = `${displayName} (${difficulty.score_multiplier}x points)`;
+            option.textContent = displayName;
             if (difficulty.description) {
                 option.title = difficulty.description;
             }
@@ -2129,23 +2129,11 @@ class GameApp {
         // Only show on mobile devices
         if (window.innerWidth <= 768) {
             const swipeIndicator = document.getElementById('swipeIndicator');
-            const hasSeenSwipeHint = localStorage.getItem('hasSeenSwipeHint');
 
-            // Show indicator for first-time users or occasionally for returning users
-            if (!hasSeenSwipeHint) {
-                // Show after a short delay when page loads
-                setTimeout(() => {
-                    this.showSwipeHint();
-                    localStorage.setItem('hasSeenSwipeHint', 'true');
-                }, 2000);
-            } else {
-                // Show occasionally for returning users (10% chance)
-                if (Math.random() < 0.1) {
-                    setTimeout(() => {
-                        this.showSwipeHint();
-                    }, 5000);
-                }
-            }
+            // Always show swipe hint after page load
+            setTimeout(() => {
+                this.showSwipeHint();
+            }, 2000);
         }
     }
 
