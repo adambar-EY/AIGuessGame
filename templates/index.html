@@ -120,8 +120,7 @@
                         </div>
 
                         <div class="input-group">
-                            <label for="categorySelect" data-translate="choose_category_optional">Choose Category
-                                (Optional)</label>
+                            <label for="categorySelect" data-translate="choose_category">Choose Category</label>
                             <select id="categorySelect">
                                 <option value="" data-translate="loading_categories">Loading categories...</option>
                             </select>
@@ -414,32 +413,58 @@
         function emergencyButtonFix() {
             const nameInput = document.getElementById('playerName');
             const startBtn = document.getElementById('startGameBtn');
+            const startOfflineBtn = document.getElementById('startOfflineGameBtn');
 
             if (nameInput && startBtn) {
                 const hasName = nameInput.value.trim().length > 0;
 
                 if (hasName) {
-                    // Aggressive button enabling
+                    // Aggressive button enabling for start game button
                     startBtn.disabled = false;
                     startBtn.removeAttribute('disabled');
+                    startBtn.classList.remove('disabled');
                     startBtn.style.opacity = '1';
                     startBtn.style.cursor = 'pointer';
                     startBtn.style.pointerEvents = 'auto';
                     startBtn.style.backgroundColor = '';
-                    startBtn.classList.remove('disabled');
 
                     // Remove any inline styles that might disable it
                     if (startBtn.style.display === 'none') {
                         startBtn.style.display = '';
                     }
 
-                    console.log('✅ Button enabled - Name provided');
+                    // Also enable offline game button if it exists
+                    if (startOfflineBtn) {
+                        startOfflineBtn.disabled = false;
+                        startOfflineBtn.removeAttribute('disabled');
+                        startOfflineBtn.classList.remove('disabled');
+                        startOfflineBtn.style.opacity = '1';
+                        startOfflineBtn.style.cursor = 'pointer';
+                        startOfflineBtn.style.pointerEvents = 'auto';
+                        startOfflineBtn.style.backgroundColor = '';
+
+                        // Remove any inline styles that might disable it
+                        if (startOfflineBtn.style.display === 'none') {
+                            startOfflineBtn.style.display = '';
+                        }
+                    }
+
+                    console.log('✅ Buttons enabled - Name provided');
                 } else {
                     startBtn.disabled = true;
                     startBtn.setAttribute('disabled', 'disabled');
+                    startBtn.classList.add('disabled');
+                    
+                    // Also disable offline game button if it exists
+                    if (startOfflineBtn) {
+                        startOfflineBtn.disabled = true;
+                        startOfflineBtn.setAttribute('disabled', 'disabled');
+                        startOfflineBtn.classList.add('disabled');
+                    }
+                    
                     // Only log when name is actually cleared, not on every check
                     if (nameInput.value === '') {
-                        console.log('❌ Button disabled - Name required');
+                        console.log('❌ Buttons disabled - Name required');
                     }
                 }
             }

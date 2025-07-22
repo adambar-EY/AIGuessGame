@@ -870,14 +870,19 @@ class GameApp {
         const playerName = playerNameInput.value.trim();
         const shouldBeEnabled = !!playerName;
 
-        // Use removeAttribute/setAttribute for more reliable disabled handling
+        // Use removeAttribute/setAttribute for more reliable disabled handling for start game button
         if (shouldBeEnabled) {
             startBtn.disabled = false;
             startBtn.removeAttribute('disabled');
+            startBtn.classList.remove('disabled');
         } else {
             startBtn.disabled = true;
             startBtn.setAttribute('disabled', 'disabled');
+            startBtn.classList.add('disabled');
         }
+
+        // Update offline button state to consider both player name and offline availability
+        this.updateOfflineButton(false);
     }
 
     async startGame() {
@@ -2302,17 +2307,33 @@ class GameApp {
             offlineButton.textContent = this.t('offline_status_checking');
             offlineButton.classList.add('disabled');
         } else {
-            // Enable button if there are any questions available
+            // Check if player name is provided
+            const playerNameInput = document.getElementById('playerName');
+            const hasPlayerName = playerNameInput && playerNameInput.value.trim().length > 0;
+            
+            // Enable button if there are questions available AND player name is provided
             const totalCount = this.offlineStats?.total_questions || 0;
             const hasQuestions = totalCount > 0;
+            const shouldEnable = hasQuestions && hasPlayerName;
 
-            offlineButton.disabled = !hasQuestions;
-            if (hasQuestions) {
+            // Use removeAttribute/setAttribute for more reliable disabled handling
+            if (shouldEnable) {
+                offlineButton.disabled = false;
+                offlineButton.removeAttribute('disabled');
                 offlineButton.textContent = this.t('start_offline_game');
                 offlineButton.classList.remove('disabled');
             } else {
-                offlineButton.textContent = this.t('no_offline_questions');
+                offlineButton.disabled = true;
+                offlineButton.setAttribute('disabled', 'disabled');
                 offlineButton.classList.add('disabled');
+                
+                if (hasQuestions) {
+                    // Has questions but no player name
+                    offlineButton.textContent = this.t('start_offline_game');
+                } else {
+                    // No questions available
+                    offlineButton.textContent = this.t('no_offline_questions');
+                }
             }
         }
     }

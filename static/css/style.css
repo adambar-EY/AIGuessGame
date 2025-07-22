@@ -191,9 +191,15 @@ body {
     text-align: center;
 }
 
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background: #cccccc !important;
+    color: #666666 !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .btn-primary {
@@ -205,6 +211,17 @@ body {
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+    background: #cccccc !important;
+    color: #666666 !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .btn-secondary {
