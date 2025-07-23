@@ -1145,7 +1145,7 @@ class GameApp {
         document.getElementById('guessCarouselContainer').innerHTML = '';
         document.getElementById('guessNavigation').innerHTML = '';
         document.getElementById('guessNavigation').style.display = 'none';
-        
+
         // Add empty class to hide guess carousel on mobile when no guesses
         const guessCarousel = document.querySelector('.guess-carousel.mobile-only');
         if (guessCarousel) {
@@ -1174,13 +1174,13 @@ class GameApp {
     async requestFact() {
         try {
             const factBtn = document.getElementById('getFactBtn');
-            
+
             // Prevent multiple simultaneous fact requests
             if (factBtn.disabled) {
                 console.log('⚠️ Fact request already in progress, ignoring duplicate call');
                 return;
             }
-            
+
             console.log('📋 Requesting new fact...');
             factBtn.disabled = true;
 
@@ -1638,13 +1638,13 @@ class GameApp {
         const guessCarouselContainer = document.getElementById('guessCarouselContainer');
         const guessCarousel = document.querySelector('.guess-carousel.mobile-only');
         const guessNavigation = document.getElementById('guessNavigation');
-        
+
         // Show carousel if this is the first guess
         if (guessCarouselContainer.children.length === 0 && guessCarousel) {
             guessCarousel.classList.remove('empty');
             guessCarousel.style.display = 'block';
         }
-        
+
         const guessElement = document.createElement('div');
         guessElement.className = `guess-item ${status}`;
 
@@ -1996,7 +1996,7 @@ class GameApp {
 
         console.log('🎯 Starting new round - offline mode:', this.offlineMode);
         this.roundStarting = true;
-        
+
         try {
             // Check if we're in offline mode and use appropriate route
             if (this.offlineMode) {
@@ -2057,28 +2057,22 @@ class GameApp {
     }
 
     async giveUp() {
-        if (confirm(this.t('confirm_give_up'))) {
-            try {
-                const response = await this.httpRequest('/api/give_up', 'POST', {
-                    session_id: this.gameSession,
-                    language: this.currentLanguage
-                });
+        try {
+            const response = await this.httpRequest('/api/give_up', 'POST', {
+                session_id: this.gameSession,
+                language: this.currentLanguage
+            });
 
-                // Show the result with the revealed answer
-                this.showResultModal(response);
+            // Show the result with the revealed answer
+            this.showResultModal(response);
 
-            } catch (error) {
-                console.error('❌ Failed to give up:', error);
-                this.showToast(this.t('failed_give_up') || 'Failed to give up. Please try again.', 'error');
-            }
+        } catch (error) {
+            console.error('❌ Failed to give up:', error);
+            this.showToast(this.t('failed_give_up') || 'Failed to give up. Please try again.', 'error');
         }
     }
 
     backToMenu() {
-        if (this.gameActive && !confirm(this.t('confirm_exit'))) {
-            return;
-        }
-
         this.showScreen('welcomeScreen');
         this.gameActive = false;
 
