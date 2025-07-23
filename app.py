@@ -1566,6 +1566,9 @@ def handle_start_offline_game():
         
         print(f"OFFLINE Player: {player_name}, Category: {category}, Difficulty: {difficulty_name}, Language: {language}, Max Rounds: {max_rounds}")
         
+        # Debug: Check database connection
+        print(f"🔌 Database connected: {db_handler.is_connected()}")
+        
         # Check if we have any offline questions available
         total_questions = db_handler.get_offline_question_count(
             category=category if category else None,
@@ -1574,10 +1577,23 @@ def handle_start_offline_game():
             exclude_used=True
         )
         
+        print(f"📊 Total questions found: {total_questions}")
+        
+        # Also check total questions in database without filters for comparison
+        total_all_questions = db_handler.get_offline_question_count(
+            category=None,
+            difficulty=None,
+            language=language,
+            exclude_used=False
+        )
+        print(f"📊 Total questions in database for language '{language}': {total_all_questions}")
+        
         if total_questions == 0:
+            # Set language for translations
+            lang_manager.set_language(language)
             return jsonify({
-                'error': 'No offline questions available',
-                'message': 'No questions found in database for the selected criteria. Please try online mode or different settings.',
+                'error': lang_manager.get_text('no_offline_questions'),
+                'message': lang_manager.get_text('no_offline_questions_message'),
                 'available_questions': 0
             }), 404
         
@@ -1724,9 +1740,11 @@ def handle_offline_new_round():
         )
         
         if total_questions == 0:
+            # Set language for translations
+            lang_manager.set_language(language)
             return jsonify({
-                'error': 'No offline questions available',
-                'message': 'No questions found in database for the selected criteria.',
+                'error': lang_manager.get_text('no_offline_questions'),
+                'message': lang_manager.get_text('no_offline_questions_short'),
                 'available_questions': 0
             }), 404
         

@@ -331,6 +331,7 @@ class GameApp {
         this.currentLanguage = 'en';
         this.gameActive = false;
         this.gameStarting = false; // Prevent multiple simultaneous game starts
+        this.roundStarting = false; // Prevent multiple simultaneous round starts
         this.categories = [];
         this.difficulties = [];
         this.initialized = false;
@@ -756,10 +757,22 @@ class GameApp {
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
+                    console.log(`🎯 Clicked outside ${modal.id} modal, closing...`);
                     this.closeModal(modal.id);
                 }
             });
         });
+
+        // Additional specific handler for result modal to ensure it works
+        const resultModal = document.getElementById('resultModal');
+        if (resultModal) {
+            resultModal.addEventListener('click', (e) => {
+                if (e.target === resultModal) {
+                    console.log('🎯 Clicked outside result modal, closing...');
+                    this.closeModal('resultModal');
+                }
+            });
+        }
     }
 
     async loadCategories() {
@@ -1132,6 +1145,13 @@ class GameApp {
         document.getElementById('guessCarouselContainer').innerHTML = '';
         document.getElementById('guessNavigation').innerHTML = '';
         document.getElementById('guessNavigation').style.display = 'none';
+        
+        // Add empty class to hide guess carousel on mobile when no guesses
+        const guessCarousel = document.querySelector('.guess-carousel.mobile-only');
+        if (guessCarousel) {
+            guessCarousel.classList.add('empty');
+            guessCarousel.style.display = 'none';
+        }
         document.getElementById('factsShown').textContent = '0';
         document.getElementById('roundScore').textContent = '0';
         document.getElementById('guessInput').value = '';
@@ -1153,7 +1173,16 @@ class GameApp {
 
     async requestFact() {
         try {
-            document.getElementById('getFactBtn').disabled = true;
+            const factBtn = document.getElementById('getFactBtn');
+            
+            // Prevent multiple simultaneous fact requests
+            if (factBtn.disabled) {
+                console.log('⚠️ Fact request already in progress, ignoring duplicate call');
+                return;
+            }
+            
+            console.log('📋 Requesting new fact...');
+            factBtn.disabled = true;
 
             const response = await this.httpRequest('/api/request_fact', 'POST', {
                 session_id: this.gameSession,
@@ -1607,7 +1636,15 @@ class GameApp {
 
     addGuessToMobileCarousel(guess, status, similarity = null) {
         const guessCarouselContainer = document.getElementById('guessCarouselContainer');
+        const guessCarousel = document.querySelector('.guess-carousel.mobile-only');
         const guessNavigation = document.getElementById('guessNavigation');
+        
+        // Show carousel if this is the first guess
+        if (guessCarouselContainer.children.length === 0 && guessCarousel) {
+            guessCarousel.classList.remove('empty');
+            guessCarousel.style.display = 'block';
+        }
+        
         const guessElement = document.createElement('div');
         guessElement.className = `guess-item ${status}`;
 
@@ -1951,13 +1988,24 @@ class GameApp {
     }
 
     async startNewRound() {
+        // Prevent multiple simultaneous round starts
+        if (this.roundStarting) {
+            console.log('⚠️ Round already starting, ignoring duplicate call');
+            return;
+        }
+
+        console.log('🎯 Starting new round - offline mode:', this.offlineMode);
+        this.roundStarting = true;
+        
         try {
             // Check if we're in offline mode and use appropriate route
             if (this.offlineMode) {
+                console.log('📱 Starting offline new round...');
                 await this.startOfflineNewRound();
                 return;
             }
 
+            console.log('🌐 Starting online new round...');
             const response = await this.httpRequest('/api/new_round', 'POST', {
                 session_id: this.gameSession,
                 category: this.currentCategory,
@@ -1970,10 +2018,14 @@ class GameApp {
         } catch (error) {
             console.error('❌ Failed to start new round:', error);
             this.showToast(this.t('failed_start_new_round'), 'error');
+        } finally {
+            console.log('✅ Round starting finished, resetting flag');
+            this.roundStarting = false;
         }
     }
 
     handleNewRoundStarted(data) {
+        console.log('🎮 Handling new round started with data:', data);
         this.gameActive = true;
         this.gameComplete = data.game_complete || false;
         this.roundsCompleted = data.rounds_completed || this.roundsCompleted;
@@ -1990,11 +2042,14 @@ class GameApp {
 
         document.getElementById('totalFacts').textContent = data.facts_available;
 
+        console.log('✅ New round setup complete - category:', data.category, 'subcategory:', data.subcategory);
+
         // Display subcategory hint if available
         // Removed subcategory hint toast for new round
 
         // Automatically request the first fact for new round
         setTimeout(() => {
+            console.log('🎯 Auto-requesting first fact for new round');
             this.requestFact();
         }, 500); // Small delay to ensure UI is ready
 
@@ -2474,10 +2529,12 @@ class GameApp {
     }
 
     closeModal(modalId) {
+        console.log(`🔒 Closing modal: ${modalId}`);
         document.getElementById(modalId).classList.remove('active');
 
         // If closing the result modal and the game is still active (not complete), automatically start new round
-        if (modalId === 'resultModal' && this.gameActive && !this.gameComplete) {
+        if (modalId === 'resultModal' && this.gameActive && !this.gameComplete && !this.roundStarting) {
+            console.log('🔄 Result modal closed during active game, starting new round...');
             // Add a small delay to allow modal close animation to complete
             setTimeout(() => {
                 this.startNewRound();
@@ -2804,6 +2861,7 @@ class GameApp {
     async startOfflineNewRound() {
         /**Start a new round in offline mode**/
         try {
+            console.log('📱 Making offline new round API call...');
             const gameData = await this.httpRequest('/api/offline-new-round', 'POST', {
                 session_id: this.gameSession,
                 category: this.currentCategory,
@@ -2811,7 +2869,7 @@ class GameApp {
                 language: this.currentLanguage
             });
 
-            console.log('✅ Offline new round started:', gameData);
+            console.log('✅ Offline new round API response:', gameData);
             this.handleNewRoundStarted(gameData);
 
         } catch (error) {

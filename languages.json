@@ -65,6 +65,9 @@
                 "enter_player_name_stats": "👤 Enter player name to view stats",
                 "default_player_name": "Anonymous Player",
                 "press_enter_continue": "Press Enter to continue...",
+                "no_offline_questions": "No offline questions available",
+                "no_offline_questions_message": "No questions found in database for the selected criteria. Please try online mode or different settings.",
+                "no_offline_questions_short": "No questions found in database for the selected criteria.",
                 "quit_commands": [
                     "quit",
                     "exit"
@@ -144,6 +147,9 @@
                 "enter_player_name_stats": "👤 Wprowadź imię gracza do wyświetlenia statystyk",
                 "default_player_name": "Anonimowy Gracz",
                 "press_enter_continue": "Naciśnij Enter, aby kontynuować...",
+                "no_offline_questions": "Brak pytań offline",
+                "no_offline_questions_message": "Nie znaleziono pytań w bazie danych dla wybranych kryteriów. Spróbuj trybu online lub innych ustawień.",
+                "no_offline_questions_short": "Nie znaleziono pytań w bazie danych dla wybranych kryteriów.",
                 "quit_commands": [
                     "koniec",
                     "wyjście",

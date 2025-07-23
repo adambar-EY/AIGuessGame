@@ -1315,10 +1315,15 @@ body {
 
     .welcome-card {
         padding: 1.5rem 1rem;
-        margin: 0.5rem;
+        margin: 0.5rem auto;
         min-height: auto;
         max-height: calc(100vh - 100px);
         overflow-y: auto;
+        /* Reset desktop max-width for mobile */
+        max-width: none;
+        width: calc(100vw - 2rem);
+        /* Center the container */
+        box-sizing: border-box;
     }
 
     .welcome-icon {
@@ -1363,29 +1368,49 @@ body {
 
     /* Mobile Game Layout - Optimized for no scrolling */
     .game-layout {
-        margin: 0.5rem;
+        margin: 0.5rem auto;
         max-height: calc(100vh - 60px);
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        /* Force same width as welcome-card */
+        max-width: none;
+        width: calc(100vw - 2rem);
+        box-sizing: border-box;
+        /* Center the container */
     }
 
     .game-header {
-        flex-direction: row;
+        flex-direction: column;
         gap: 0.5rem;
         text-align: center;
         padding: 1rem;
         flex-shrink: 0;
+        /* Prevent content from expanding container width */
+        min-width: 0;
+        overflow: hidden;
     }
 
     .player-info {
         min-width: 0;
-        flex: 1;
+        /* Prevent text overflow from expanding container */
+        overflow: hidden;
     }
 
     .player-info h3 {
         font-size: 1.1rem;
         margin-bottom: 0;
+        /* Prevent long names from expanding container */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .current-category {
+        /* Prevent long category names from expanding container */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .player-avatar {
@@ -1451,14 +1476,25 @@ body {
     .facts-category {
         margin-bottom: 0.5rem;
         flex-shrink: 0;
+        /* Prevent long category names from expanding container */
+        min-width: 0;
+        overflow: hidden;
     }
 
     .category-main {
         font-size: 1rem;
+        /* Prevent text overflow */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .category-sub {
         font-size: 0.8rem;
+        /* Prevent text overflow */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     /* Facts carousel for mobile */
@@ -1831,8 +1867,7 @@ body {
 
     .player-info {
         min-width: 0;
-        flex: 1;
-        order: 1;
+        order: 0;
     }
 
     .player-info h3 {
@@ -1849,7 +1884,7 @@ body {
     .score-display {
         gap: 1rem;
         flex-shrink: 0;
-        order: 0;
+        order: 1;
         justify-content: center;
     }
 
@@ -2614,6 +2649,11 @@ body {
 @media (max-width: 768px) {
     .mobile-only {
         display: block !important;
+    }
+
+    /* Hide guess carousel on mobile when no guesses yet */
+    .guess-carousel.mobile-only.empty {
+        display: none !important;
     }
 
     .desktop-only {
