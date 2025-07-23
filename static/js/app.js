@@ -784,10 +784,68 @@ class GameApp {
         const currentValue = select.value; // Preserve current selection
         select.innerHTML = `<option value="">${this.t('random_category')}</option>`;
 
+        // Category icons mapping
+        const categoryIcons = {
+            'animals': '🐾',
+            'food': '🍽️',
+            'technology': '💻',
+            'movies': '🎬',
+            'music': '🎵',
+            'sports': '⚽',
+            'countries': '🌍',
+            'cities': '🏙️',
+            'historical figures': '👑',
+            'science': '🔬',
+            'books': '📚',
+            'games': '🎮',
+            'mythology': '⚡',
+            'space': '🚀',
+            'vehicles': '🚗',
+            'clothing': '👔',
+            'household items': '🏠',
+            'professions': '💼',
+            'hobbies': '🎨',
+            'emotions': '😊',
+            'weather': '🌦️',
+            'colors': '🌈',
+            'shapes': '🔺',
+            'plants': '🌿',
+            'landmarks': '🗽',
+            'materials': '🧱',
+            'art styles': '🎭',
+            'festivals': '🎪',
+            'languages': '🗣️',
+            'currencies': '💰',
+            'gemstones': '💎',
+            'dance': '💃',
+            'medical': '⚕️',
+            'tools': '🔧',
+            'toys': '🧸',
+            'insects': '🐛',
+            'furniture': '🪑',
+            'desserts': '🍰',
+            'beverages': '🥤',
+            'electronics': '📱',
+            'instruments': '�',
+            'architecture': '🏛️',
+            'geography': '🗺️',
+            'transportation': '🚌',
+            'communication': '📡',
+            'energy': '⚡',
+            'education': '🎓',
+            'religion': '⛪',
+            'philosophy': '🤔',
+            'psychology': '🧠',
+            'economics': '📈',
+            'nature': '�🌲',
+            'art': '�'
+        };
+
         this.categories.forEach(category => {
             const option = document.createElement('option');
             option.value = category.name;
-            option.textContent = `${category.display_name.charAt(0).toUpperCase() + category.display_name.slice(1)} - ${category.display_description}`;
+            const icon = categoryIcons[category.name] || '📂';
+            option.textContent = `${icon} ${category.display_name.charAt(0).toUpperCase() + category.display_name.slice(1)} - ${category.display_description}`;
             select.appendChild(option);
         });
 
@@ -821,6 +879,15 @@ class GameApp {
         // Clear options but don't add loading option to avoid triggering validation
         difficultySelect.innerHTML = '';
 
+        // Difficulty level icons mapping
+        const difficultyIcons = {
+            'very_easy': '🌱', // Seedling for beginner
+            'easy': '🔰',      // Beginner symbol
+            'normal': '⭐',    // Star for standard
+            'hard': '🔥',      // Fire for challenging
+            'expert': '💎'     // Diamond for expert/premium
+        };
+
         this.difficulties.forEach(difficulty => {
             const option = document.createElement('option');
             option.value = difficulty.name;
@@ -829,7 +896,11 @@ class GameApp {
             if (this.currentLanguage === 'pl') {
                 displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1).toLowerCase();
             }
-            option.textContent = displayName;
+
+            // Add icon to difficulty name
+            const icon = difficultyIcons[difficulty.name] || '⭐';
+            option.textContent = `${icon} ${displayName}`;
+
             if (difficulty.description) {
                 option.title = difficulty.description;
             }

@@ -153,7 +153,7 @@ body {
     border: 2px solid #e2e8f0;
     border-radius: 8px;
     background: white;
-    font-family: inherit;
+    font-family: 'Poppins', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
     font-size: 0.9rem;
     font-weight: 500;
     color: #667eea;
@@ -176,6 +176,7 @@ body {
 .language-select option {
     padding: 0.5rem;
     font-weight: 500;
+    font-family: 'Poppins', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
 
 /* Buttons */
@@ -1309,6 +1310,7 @@ body {
     .language-select {
         min-width: 120px;
         font-size: 0.85rem;
+        font-family: 'Poppins', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
     }
 
     .welcome-card {
@@ -1806,7 +1808,8 @@ body {
 
     /* Main content optimization for small screens */
     .main {
-        min-height: calc(100vh - 120px); /* Account for header and footer */
+        min-height: calc(100vh - 120px);
+        /* Account for header and footer */
     }
 
     /* Optimized game layout for very small screens */
@@ -2302,6 +2305,7 @@ body {
 
 /* Enhanced mobile responsiveness for very small devices (iPhone SE: 375px and smaller) */
 @media (max-width: 375px) {
+
     /* Optimize screen container for small devices */
     .screen {
         min-height: auto;
@@ -2310,7 +2314,8 @@ body {
 
     /* Main content optimization for very small screens */
     .main {
-        min-height: calc(100vh - 100px); /* Account for compact header and footer */
+        min-height: calc(100vh - 100px);
+        /* Account for compact header and footer */
     }
 
     .welcome-card {
