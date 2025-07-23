@@ -35,7 +35,7 @@ class LanguageManager:
             self.languages = {
                 'en': {
                     'name': 'English',
-                    'flag': '🇺🇸',
+                    'flag': '🇬🇧',
                     'translations': {
                         'welcome': '🎮 Welcome to the AI-Powered Guessing Game!',
                         'error': 'Error: Language file not found'

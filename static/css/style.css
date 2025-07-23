@@ -13,12 +13,21 @@ body {
     min-height: 100vh;
     color: #333;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+/* Main content area - flex to push footer down */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Background Animation */
@@ -879,6 +888,7 @@ body {
     text-align: center;
     color: white;
     margin-top: auto;
+    flex-shrink: 0;
 }
 
 /* Loading Animation */
@@ -1575,7 +1585,7 @@ body {
     }
 
     .guess-history {
-        max-height: 90px;
+        max-height: 130px;
         margin-top: 0.5rem;
         display: flex;
         flex-direction: column;
@@ -1584,7 +1594,7 @@ body {
     .guess-carousel {
         flex: 1;
         min-height: 60px;
-        max-height: 70px;
+        max-height: 100px;
     }
 
     .guess-item {
@@ -1732,6 +1742,12 @@ body {
         gap: 0.5rem;
         min-height: 44px;
     }
+
+    /* Footer optimization for mobile */
+    .footer {
+        padding: 0.75rem 0;
+        font-size: 0.9rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1786,6 +1802,11 @@ body {
         padding: 0.6rem 1.25rem;
         font-size: 0.95rem;
         border-radius: 8px;
+    }
+
+    /* Main content optimization for small screens */
+    .main {
+        min-height: calc(100vh - 120px); /* Account for header and footer */
     }
 
     /* Optimized game layout for very small screens */
@@ -2003,7 +2024,7 @@ body {
     }
 
     .guess-history {
-        max-height: 80px;
+        max-height: 120px;
         margin-top: 0.375rem;
         display: flex;
         flex-direction: column;
@@ -2012,7 +2033,7 @@ body {
     .guess-carousel {
         flex: 1;
         min-height: 50px;
-        max-height: 60px;
+        max-height: 100px;
     }
 
     .guess-item {
@@ -2121,6 +2142,12 @@ body {
         padding: 0.5rem;
         min-height: 40px;
     }
+
+    /* Footer optimization for small screens */
+    .footer {
+        padding: 0.75rem 0;
+        font-size: 0.85rem;
+    }
 }
 
 /* Mobile landscape orientation optimizations */
@@ -2174,6 +2201,12 @@ body {
 
     .modal-header {
         padding: 0.5rem 0.75rem;
+    }
+
+    /* Footer optimization for landscape mobile */
+    .footer {
+        padding: 0.5rem 0;
+        font-size: 0.8rem;
     }
 }
 
@@ -2269,34 +2302,83 @@ body {
 
 /* Enhanced mobile responsiveness for very small devices (iPhone SE: 375px and smaller) */
 @media (max-width: 375px) {
+    /* Optimize screen container for small devices */
+    .screen {
+        min-height: auto;
+        padding: 0.5rem 0;
+    }
+
+    /* Main content optimization for very small screens */
+    .main {
+        min-height: calc(100vh - 100px); /* Account for compact header and footer */
+    }
+
     .welcome-card {
-        padding: 0.75rem 0.5rem;
-        margin: 0.1rem;
+        padding: 0.5rem 0.4rem;
+        margin: 0.05rem;
     }
 
     .welcome-icon {
-        font-size: 1.8rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.4rem;
+        margin-bottom: 0.3rem;
     }
 
     .welcome-card h2 {
-        font-size: 1.25rem;
-        margin-bottom: 0.4rem;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
     }
 
     .welcome-description {
-        font-size: 0.8rem;
-        margin-bottom: 0.8rem;
-        line-height: 1.25;
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
     }
 
     .player-setup {
-        gap: 0.5rem;
+        gap: 0.3rem;
+    }
+
+    .input-group {
+        margin-bottom: 0.3rem;
+    }
+
+    .input-group label {
+        margin-bottom: 0.1rem;
+        font-size: 0.8rem;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.4rem;
+        font-size: 0.8rem;
     }
 
     .btn-large {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        margin-bottom: 0.3rem;
+    }
+
+    /* Remove margin from offline game button to reduce gap */
+    #startOfflineGameBtn {
+        margin-bottom: 0.1rem;
+    }
+
+    /* Optimize offline status section for very small screens */
+    .offline-mode-section {
+        border-top: none;
+        padding-top: 0.1rem;
+        margin-top: 0.1rem;
+    }
+
+    .offline-status {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .offline-description {
+        font-size: 0.75rem;
+        margin-bottom: 0.4rem;
     }
 
     .game-layout {
@@ -2397,7 +2479,7 @@ body {
     }
 
     .guess-history {
-        max-height: 70px;
+        max-height: 110px;
         display: flex;
         flex-direction: column;
     }
@@ -2405,7 +2487,7 @@ body {
     .guess-carousel {
         flex: 1;
         min-height: 45px;
-        max-height: 50px;
+        max-height: 100px;
     }
 
     .guess-item {
@@ -2480,6 +2562,12 @@ body {
         letter-spacing: 0.5px;
         padding: 0.4rem;
         min-height: 36px;
+    }
+
+    /* Optimize footer for very small screens */
+    .footer {
+        padding: 0.75rem 0;
+        font-size: 0.8rem;
     }
 }
 
@@ -2635,5 +2723,11 @@ body {
 
     .desktop-only {
         display: block !important;
+    }
+
+    /* Footer optimization for desktop */
+    .footer {
+        padding: 1.5rem 0;
+        font-size: 1rem;
     }
 }

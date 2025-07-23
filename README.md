@@ -878,7 +878,7 @@ Complete translation system with UI strings and category examples.
     "languages": {
         "en": {
             "name": "English",
-            "flag": "🇺🇸", 
+            "flag": "🇬🇧", 
             "translations": {
                 "welcome": "Welcome text",
                 "category_examples": {

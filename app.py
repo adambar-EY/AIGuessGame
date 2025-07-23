@@ -1199,7 +1199,7 @@ def get_languages():
     """Get available languages"""
     try:
         languages = [
-            {'code': 'en', 'name': 'English', 'flag': '🇺🇸'},
+            {'code': 'en', 'name': 'English', 'flag': '🇬🇧'},
             {'code': 'pl', 'name': 'Polski', 'flag': '🇵🇱'}
         ]
         return jsonify(languages)

@@ -2,7 +2,7 @@
     "languages": {
         "en": {
             "name": "English",
-            "flag": "🇺🇸",
+            "flag": "🇬🇧",
             "translations": {
                 "welcome": "🎮 Welcome to Fact Quest!",
                 "description": "This game uses Azure OpenAI to generate random items and facts.",
