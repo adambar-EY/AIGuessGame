@@ -153,7 +153,8 @@
                             </select>
                         </div>
 
-                        <button class="btn btn-primary btn-large" id="startGameBtn" data-translate="start_game">
+                        <button class="btn btn-primary btn-large" id="startGameBtn" data-translate="start_game"
+                            disabled>
                             <i class="fas fa-play"></i>
                             Start Game
                         </button>
@@ -281,16 +282,25 @@
                                     </button>
                                 </div>
 
-                                <div class="guess-history" id="guessHistory"></div>
+                                <div class="guess-history" id="guessHistory">
+                                    <!-- Mobile carousel structure (hidden on desktop) -->
+                                    <div class="guess-carousel mobile-only" style="display: none;">
+                                        <div class="guess-carousel-container" id="guessCarouselContainer">
+                                            <!-- Guess items will be inserted here dynamically -->
+                                        </div>
+                                        <div class="guess-navigation" id="guessNavigation" style="display: none;">
+                                            <!-- Navigation dots will be inserted here dynamically -->
+                                        </div>
+                                    </div>
+                                    <!-- Desktop list structure (visible on desktop) -->
+                                    <div class="guess-list desktop-only" id="guessListContainer">
+                                        <!-- Guess items will be inserted here dynamically -->
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Game Controls -->
                             <div class="game-controls">
-                                <button class="btn btn-outline" id="newRoundBtn" style="display: none;"
-                                    data-translate="new_round">
-                                    <i class="fas fa-refresh"></i>
-                                    New Round
-                                </button>
                                 <button class="btn btn-ghost" id="giveUpBtn" data-translate="give_up">
                                     <i class="fas fa-flag"></i>
                                     Give Up
@@ -454,14 +464,14 @@
                     startBtn.disabled = true;
                     startBtn.setAttribute('disabled', 'disabled');
                     startBtn.classList.add('disabled');
-                    
+
                     // Also disable offline game button if it exists
                     if (startOfflineBtn) {
                         startOfflineBtn.disabled = true;
                         startOfflineBtn.setAttribute('disabled', 'disabled');
                         startOfflineBtn.classList.add('disabled');
                     }
-                    
+
                     // Only log when name is actually cleared, not on every check
                     if (nameInput.value === '') {
                         console.log('❌ Buttons disabled - Name required');

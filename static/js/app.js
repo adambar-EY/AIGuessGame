@@ -33,7 +33,6 @@ const translations = {
         whats_your_guess: "What's your guess?",
         type_your_answer: "Type your answer here...",
         submit: "Submit",
-        new_round: "New Round",
         give_up: "Give Up",
         main_menu: "Main Menu",
 
@@ -192,7 +191,6 @@ const translations = {
         whats_your_guess: "Jaka jest twoja odpowiedź?",
         type_your_answer: "Wpisz tutaj swoją odpowiedź...",
         submit: "Wyślij",
-        new_round: "Nowa Runda",
         give_up: "Poddaj się",
         main_menu: "Menu Główne",
 
@@ -643,7 +641,6 @@ class GameApp {
         const getFactBtn = document.getElementById('getFactBtn');
         const guessInput = document.getElementById('guessInput');
         const submitGuessBtn = document.getElementById('submitGuessBtn');
-        const newRoundBtn = document.getElementById('newRoundBtn');
         const giveUpBtn = document.getElementById('giveUpBtn');
         const backToMenuBtn = document.getElementById('backToMenuBtn');
         const getLetterHintBtn = document.getElementById('getLetterHintBtn');
@@ -668,10 +665,6 @@ class GameApp {
 
         submitGuessBtn.addEventListener('click', () => {
             this.submitGuess();
-        });
-
-        newRoundBtn.addEventListener('click', () => {
-            this.startNewRound();
         });
 
         giveUpBtn.addEventListener('click', () => {
@@ -732,6 +725,9 @@ class GameApp {
 
         // Touch gesture support for mobile navigation
         this.setupTouchGestures();
+
+        // Setup guess carousel gestures for mobile
+        this.setupGuessCarouselGestures();
 
         // Show swipe indicator for first-time users
         this.showSwipeIndicatorOnMobile();
@@ -1041,7 +1037,7 @@ class GameApp {
             factsList.innerHTML = `
                 <div class="facts-carousel">
                     <div class="facts-carousel-container">
-                        <div class="no-facts">
+                        <div class="fact-loading">
                             <i class="fas fa-spinner fa-spin"></i>
                             <p>${this.t('getting_hint')}</p>
                         </div>
@@ -1053,20 +1049,23 @@ class GameApp {
             // Desktop view - traditional list
             console.log('🖥️ Setting up desktop list structure');
             factsList.innerHTML = `
-                <div class="no-facts">
+                <div class="fact-loading">
                     <i class="fas fa-spinner fa-spin"></i>
                     <p>${this.t('getting_hint')}</p>
                 </div>
             `;
         }
 
-        document.getElementById('guessHistory').innerHTML = '';
+        // Clear guess history for both mobile and desktop
+        document.getElementById('guessListContainer').innerHTML = '';
+        document.getElementById('guessCarouselContainer').innerHTML = '';
+        document.getElementById('guessNavigation').innerHTML = '';
+        document.getElementById('guessNavigation').style.display = 'none';
         document.getElementById('factsShown').textContent = '0';
         document.getElementById('roundScore').textContent = '0';
         document.getElementById('guessInput').value = '';
         document.getElementById('getFactBtn').disabled = false;
         document.getElementById('submitGuessBtn').disabled = false;
-        document.getElementById('newRoundBtn').style.display = 'none';
 
         // Reset hint system
         document.getElementById('letterHintDisplay').style.display = 'none';
@@ -1118,10 +1117,10 @@ class GameApp {
             console.log('📱 Adding fact to carousel');
             this.addFactToCarousel(data);
         } else {
-            // Desktop list view - remove no-facts message if present
-            const noFacts = factsList.querySelector('.no-facts');
-            if (noFacts) {
-                noFacts.remove();
+            // Desktop list view - remove fact-loading message if present
+            const factLoading = factsList.querySelector('.fact-loading');
+            if (factLoading) {
+                factLoading.remove();
             }
             console.log('🖥️ Adding fact to list');
             this.addFactToList(data);
@@ -1192,12 +1191,12 @@ class GameApp {
             return;
         }
 
-        // Remove no-facts message if it's the first fact
+        // Remove fact-loading message if it's the first fact
         if (carouselContainer.children.length === 1) {
-            const noFacts = carouselContainer.querySelector('.no-facts');
-            if (noFacts) {
-                console.log('🗑️ Removing no-facts message');
-                noFacts.remove();
+            const factLoading = carouselContainer.querySelector('.fact-loading');
+            if (factLoading) {
+                console.log('🗑️ Removing fact-loading message');
+                factLoading.remove();
             }
         }
 
@@ -1487,13 +1486,22 @@ class GameApp {
     }
 
     addGuessToHistory(guess, status, similarity = null) {
-        const guessHistory = document.getElementById('guessHistory');
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile) {
+            this.addGuessToMobileCarousel(guess, status, similarity);
+        } else {
+            this.addGuessToDesktopList(guess, status, similarity);
+        }
+    }
+
+    addGuessToDesktopList(guess, status, similarity = null) {
+        const guessListContainer = document.getElementById('guessListContainer');
         const guessElement = document.createElement('div');
         guessElement.className = `guess-item ${status}`;
 
         let similarityDisplay = '';
         if (status === 'incorrect' || status === 'pending') {
-            // Always show similarity for incorrect and pending guesses, even if 0%
             const similarityPercent = similarity ? Math.round(similarity * 100) : 0;
             similarityDisplay = `<span class="similarity-info">${similarityPercent}% ${this.t('similar')}</span>`;
         }
@@ -1517,10 +1525,154 @@ class GameApp {
             </div>
         `;
 
-        guessHistory.appendChild(guessElement);
+        guessListContainer.appendChild(guessElement);
+
+        // Scroll to latest guess
+        const guessHistory = document.getElementById('guessHistory');
         guessHistory.scrollTop = guessHistory.scrollHeight;
 
         return guessElement;
+    }
+
+    addGuessToMobileCarousel(guess, status, similarity = null) {
+        const guessCarouselContainer = document.getElementById('guessCarouselContainer');
+        const guessNavigation = document.getElementById('guessNavigation');
+        const guessElement = document.createElement('div');
+        guessElement.className = `guess-item ${status}`;
+
+        let similarityBadge = '';
+        if (status === 'incorrect' || status === 'pending') {
+            const similarityPercent = similarity ? Math.round(similarity * 100) : 0;
+            similarityBadge = `<span class="similarity-info">${similarityPercent}% ${this.t('similar')}</span>`;
+        }
+
+        let statusIcon;
+        if (status === 'pending') {
+            statusIcon = '<i class="fas fa-spinner fa-spin"></i>';
+        } else if (status === 'correct') {
+            statusIcon = '<i class="fas fa-check text-success"></i>';
+        } else {
+            statusIcon = '<i class="fas fa-times text-danger"></i>';
+        }
+
+        guessElement.innerHTML = `
+            <div class="guess-content">
+                <div class="guess-info">
+                    <span class="guess-text">${guess}</span>
+                    ${similarityBadge}
+                </div>
+                <span class="guess-status">${statusIcon}</span>
+            </div>
+        `;
+
+        guessCarouselContainer.appendChild(guessElement);
+
+        // Update navigation dots
+        this.updateGuessNavigation();
+
+        // Auto-navigate to the latest guess
+        const guessCount = guessCarouselContainer.children.length;
+        if (guessCount > 0) {
+            this.navigateToGuess(guessCount - 1);
+        }
+
+        return guessElement;
+    }
+
+    updateGuessNavigation() {
+        const guessCarouselContainer = document.getElementById('guessCarouselContainer');
+        const guessNavigation = document.getElementById('guessNavigation');
+        const guessCount = guessCarouselContainer.children.length;
+
+        // Clear existing dots
+        guessNavigation.innerHTML = '';
+
+        if (guessCount <= 1) {
+            guessNavigation.style.display = 'none';
+            return;
+        }
+
+        guessNavigation.style.display = 'flex';
+
+        // Create navigation dots
+        for (let i = 0; i < guessCount; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'guess-nav-dot';
+            dot.addEventListener('click', () => this.navigateToGuess(i));
+            guessNavigation.appendChild(dot);
+        }
+
+        // Set active dot (latest guess)
+        this.setActiveGuessDot(guessCount - 1);
+    }
+
+    navigateToGuess(index) {
+        const guessCarouselContainer = document.getElementById('guessCarouselContainer');
+        const offset = -index * 100;
+        guessCarouselContainer.style.transform = `translateX(${offset}%)`;
+        this.setActiveGuessDot(index);
+    }
+
+    setActiveGuessDot(activeIndex) {
+        const dots = document.querySelectorAll('.guess-nav-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === activeIndex);
+        });
+    }
+
+    setupGuessCarouselGestures() {
+        const guessCarouselContainer = document.getElementById('guessCarouselContainer');
+        if (!guessCarouselContainer) return;
+
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        let currentIndex = 0;
+
+        guessCarouselContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+            e.stopPropagation(); // Prevent event bubbling
+        }, { passive: true });
+
+        // Add touchmove handler to prevent mobile nav panel from opening
+        guessCarouselContainer.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            e.preventDefault(); // Prevent default scroll behavior
+            e.stopPropagation(); // Prevent event bubbling to parent elements
+        }, { passive: false });
+
+        guessCarouselContainer.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+
+            const endX = e.changedTouches[0].clientX;
+            const diff = startX - endX;
+            const threshold = 50;
+
+            const guessCount = guessCarouselContainer.children.length;
+
+            if (Math.abs(diff) > threshold && guessCount > 1) {
+                if (diff > 0) {
+                    // Swipe left - next guess
+                    currentIndex = Math.min(currentIndex + 1, guessCount - 1);
+                } else {
+                    // Swipe right - previous guess  
+                    currentIndex = Math.max(currentIndex - 1, 0);
+                }
+                this.navigateToGuess(currentIndex);
+            }
+
+            isDragging = false;
+            e.stopPropagation(); // Prevent event bubbling
+        }, { passive: true });
+
+        // Update current index when navigating via dots
+        const originalNavigateToGuess = this.navigateToGuess.bind(this);
+        this.navigateToGuess = (index) => {
+            currentIndex = index;
+            originalNavigateToGuess(index);
+        };
     }
 
     handleGuessResult(data) {
@@ -1531,14 +1683,26 @@ class GameApp {
     }
 
     updateLastGuessStatus(data) {
-        const lastGuess = document.querySelector('.guess-item:last-child');
-        if (!lastGuess) return;
+        const isMobile = window.innerWidth <= 768;
 
-        lastGuess.className = `guess-item ${data.correct ? 'correct' : 'incorrect'}`;
-        this.updateGuessInfo(lastGuess, data);
+        if (isMobile) {
+            // Update mobile carousel item
+            const mobileLastGuess = document.querySelector('#guessCarouselContainer .guess-item:last-child');
+            if (mobileLastGuess) {
+                mobileLastGuess.className = `guess-item ${data.correct ? 'correct' : 'incorrect'}`;
+                this.updateMobileGuessInfo(mobileLastGuess, data);
+            }
+        } else {
+            // Update desktop list item
+            const desktopLastGuess = document.querySelector('#guessListContainer .guess-item:last-child');
+            if (desktopLastGuess) {
+                desktopLastGuess.className = `guess-item ${data.correct ? 'correct' : 'incorrect'}`;
+                this.updateDesktopGuessInfo(desktopLastGuess, data);
+            }
+        }
     }
 
-    updateGuessInfo(guessElement, data) {
+    updateDesktopGuessInfo(guessElement, data) {
         const guessInfo = guessElement.querySelector('.guess-info');
         if (!guessInfo) return;
 
@@ -1546,15 +1710,46 @@ class GameApp {
         if (!data.correct) {
             const similarityPercent = data.similarity ? Math.round(data.similarity * 100) : 0;
             similarityDisplay = `<span class="similarity-info">${similarityPercent}% ${this.t('similar')}</span>`;
-            console.log('📊 Similarity display:', similarityDisplay); // Debug log
         }
 
         guessInfo.innerHTML = `
             ${similarityDisplay}
             <span class="guess-status">
-                ${data.correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>'}
+                ${data.correct ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>'}
             </span>
         `;
+    }
+
+    updateMobileGuessInfo(guessElement, data) {
+        const guessContent = guessElement.querySelector('.guess-content');
+        if (!guessContent) return;
+
+        const guessInfo = guessContent.querySelector('.guess-info');
+        const guessStatusSpan = guessContent.querySelector('.guess-status');
+
+        if (!guessInfo || !guessStatusSpan) return;
+
+        const guessTextSpan = guessInfo.querySelector('.guess-text');
+        if (!guessTextSpan) return;
+
+        // Get the original guess text
+        const originalText = guessTextSpan.textContent;
+
+        // Create new similarity badge if incorrect
+        let similarityBadge = '';
+        if (!data.correct) {
+            const similarityPercent = data.similarity ? Math.round(data.similarity * 100) : 0;
+            similarityBadge = `<span class="similarity-info">${similarityPercent}% ${this.t('similar')}</span>`;
+        }
+
+        // Update the guess info content
+        guessInfo.innerHTML = `
+            <span class="guess-text">${originalText}</span>
+            ${similarityBadge}
+        `;
+
+        // Update status icon
+        guessStatusSpan.innerHTML = data.correct ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>';
     }
 
     processGuessOutcome(data) {
@@ -1582,23 +1777,24 @@ class GameApp {
         document.getElementById('getFactBtn').disabled = true;
         document.getElementById('submitGuessBtn').disabled = true;
 
-        // Check if game is complete
-        if (this.gameComplete) {
-            // Hide new round button and show session complete options
-            document.getElementById('newRoundBtn').style.display = 'none';
-            this.showGameCompleteModal(data);
-        } else {
-            // Show new round button for continuing the session
-            document.getElementById('newRoundBtn').style.display = 'inline-flex';
-            this.showResultModal(data, true);
-        }
-
         // Enhanced success message
         const timeTaken = Math.round(data.time_taken || 0);
         const factsUsed = data.facts_used || 0;
         const scoreMsg = `+${data.score} points! (${factsUsed} facts, ${timeTaken}s)`;
 
         this.showToast(this.t('correct_celebration') + ' ' + scoreMsg, 'success');
+
+        // Add 1-second delay before showing modal to let user see their last guess
+        setTimeout(() => {
+            // Check if game is complete
+            if (this.gameComplete) {
+                // Show session complete options
+                this.showGameCompleteModal(data);
+            } else {
+                // Show result modal - new round will start automatically when modal is closed
+                this.showResultModal(data, true);
+            }
+        }, 1000);
     }
 
     handleAutoRevealedAnswer(data) {
@@ -1617,34 +1813,33 @@ class GameApp {
         document.getElementById('getFactBtn').disabled = true;
         document.getElementById('submitGuessBtn').disabled = true;
 
-        // Check if game is complete
-        if (this.gameComplete) {
-            // Hide new round button and show session complete options
-            document.getElementById('newRoundBtn').style.display = 'none';
-            this.showGameCompleteModal(data);
-        } else {
-            // Show new round button for continuing the session
-            document.getElementById('newRoundBtn').style.display = 'inline-flex';
-            this.showResultModal(data, false); // false = not a success
-        }
-
         // Show auto-reveal message
         const feedbackMessage = data.feedback || this.t('answer_revealed_attempts');
         this.showToast(feedbackMessage);
-        document.getElementById('timeTaken').textContent = `${(data.time_taken || 0).toFixed(1)}s`;
-        document.getElementById('factsUsed').textContent = data.facts_used || 0;
 
-        // Change "Play Again" button text to "Play New Session"
-        const playAgainBtn = document.querySelector('#resultModal .btn-primary');
-        if (playAgainBtn) {
-            playAgainBtn.textContent = this.t('play_new_session');
-        }
+        // Add 1-second delay before showing modal to let user see their last guess
+        setTimeout(() => {
+            // Check if game is complete
+            if (this.gameComplete) {
+                // Show session complete options
+                this.showGameCompleteModal(data);
+            } else {
+                // Show result modal - new round will start automatically when modal is closed
+                this.showResultModal(data, false); // false = not a success
+            }
 
-        // Show modal
-        modal.classList.add('active');
+            document.getElementById('timeTaken').textContent = `${(data.time_taken || 0).toFixed(1)}s`;
+            document.getElementById('factsUsed').textContent = data.facts_used || 0;
 
-        // Show final score toast
-        this.showToast(`${this.t('final_score')}: ${data.total_score} points!`, 'success');
+            // Change "Play Again" button text to "Play New Session"
+            const playAgainBtn = document.querySelector('#resultModal .btn-primary');
+            if (playAgainBtn) {
+                playAgainBtn.textContent = this.t('play_new_session');
+            }
+
+            // Show final score toast
+            this.showToast(`${this.t('final_score')}: ${data.total_score} points!`, 'success');
+        }, 1000);
     }
 
     showResultModal(data, success) {
@@ -2209,6 +2404,14 @@ class GameApp {
 
     closeModal(modalId) {
         document.getElementById(modalId).classList.remove('active');
+
+        // If closing the result modal and the game is still active (not complete), automatically start new round
+        if (modalId === 'resultModal' && this.gameActive && !this.gameComplete) {
+            // Add a small delay to allow modal close animation to complete
+            setTimeout(() => {
+                this.startNewRound();
+            }, 300);
+        }
     }
 
     showToast(message, type = 'info') {
@@ -2310,7 +2513,7 @@ class GameApp {
             // Check if player name is provided
             const playerNameInput = document.getElementById('playerName');
             const hasPlayerName = playerNameInput && playerNameInput.value.trim().length > 0;
-            
+
             // Enable button if there are questions available AND player name is provided
             const totalCount = this.offlineStats?.total_questions || 0;
             const hasQuestions = totalCount > 0;
@@ -2326,7 +2529,7 @@ class GameApp {
                 offlineButton.disabled = true;
                 offlineButton.setAttribute('disabled', 'disabled');
                 offlineButton.classList.add('disabled');
-                
+
                 if (hasQuestions) {
                     // Has questions but no player name
                     offlineButton.textContent = this.t('start_offline_game');
