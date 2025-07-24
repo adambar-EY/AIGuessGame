@@ -1315,7 +1315,6 @@ body {
 
     .welcome-card {
         padding: 1.5rem 1rem;
-        margin: 0.5rem auto;
         min-height: auto;
         max-height: calc(100vh - 100px);
         overflow-y: auto;
@@ -1368,7 +1367,6 @@ body {
 
     /* Mobile Game Layout - Optimized for no scrolling */
     .game-layout {
-        margin: 0.5rem auto;
         max-height: calc(100vh - 60px);
         display: flex;
         flex-direction: column;
@@ -1800,7 +1798,6 @@ body {
 
     .welcome-card {
         padding: 1rem 0.75rem;
-        margin: 0.25rem;
         border-radius: 15px;
     }
 
@@ -2355,7 +2352,6 @@ body {
 
     .welcome-card {
         padding: 0.5rem 0.4rem;
-        margin: 0.05rem;
     }
 
     .welcome-icon {
