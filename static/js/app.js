@@ -29,7 +29,7 @@ const translations = {
         facts_revealed: "Facts Revealed",
         click_get_hint: "Click \"Get Hint\" to reveal your first fact!",
         get_hint: "Get Hint",
-        get_letter_hint: "Letter Hint",
+        get_letter_hint: "Character Hint",
         whats_your_guess: "What's your guess?",
         type_your_answer: "Type your answer here...",
         submit: "Submit",
@@ -37,13 +37,13 @@ const translations = {
         main_menu: "Main Menu",
 
         // Hint system
-        letter_hint: "Letter Hint",
+        letter_hint: "Character Hint",
         hints_used: "Hints Used",
         hints_remaining: "Hints Remaining",
-        letter_revealed: "Letter revealed!",
+        letter_revealed: "Character revealed!",
         no_hints_left: "No Hints",
-        no_letters_left: "No Letters",
-        no_more_letters: "No more letters to reveal",
+        no_letters_left: "No Characters",
+        no_more_letters: "No more characters to reveal",
 
         // Scoring system
         hint_penalty: "Hint Penalty",
@@ -187,7 +187,7 @@ const translations = {
         facts_revealed: "Odkryte Fakty",
         click_get_hint: "Kliknij \"Wskazówka\" aby odkryć pierwszy fakt!",
         get_hint: "Wskazówka",
-        get_letter_hint: "Litera",
+        get_letter_hint: "Znak",
         whats_your_guess: "Jaka jest twoja odpowiedź?",
         type_your_answer: "Wpisz tutaj swoją odpowiedź...",
         submit: "Wyślij",
@@ -195,13 +195,13 @@ const translations = {
         main_menu: "Menu Główne",
 
         // Hint system
-        letter_hint: "Podpowiedź Literowa",
+        letter_hint: "Podpowiedź Znakowa",
         hints_used: "Użyte Podpowiedzi",
         hints_remaining: "Pozostałe Podpowiedzi",
-        letter_revealed: "Litera ujawniona!",
+        letter_revealed: "Znak ujawniony!",
         no_hints_left: "Brak Wskazówek",
-        no_letters_left: "Brak Liter",
-        no_more_letters: "Nie ma więcej liter do ujawnienia",
+        no_letters_left: "Brak Znaków",
+        no_more_letters: "Nie ma więcej znaków do ujawnienia",
 
         // Scoring system
         hint_penalty: "Kara za Podpowiedzi",

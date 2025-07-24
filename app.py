@@ -745,7 +745,7 @@ class WebGameSession:
         self.round_history: List = []  # Store completed rounds for database saving
         
         # Hint system
-        self.revealed_letters: set = set()  # Track revealed letter positions
+        self.revealed_letters: set = set()  # Track revealed character positions
         self.hints_used = 0  # Track number of hints used in current round
         self.max_hints = 3  # Maximum hints per round
         
@@ -818,7 +818,7 @@ class WebGameSession:
         return None
     
     def get_hint(self) -> Dict:
-        """Reveal a random letter from the answer and return hint status"""
+        """Reveal a random character from the answer and return hint status"""
         if not self.current_item:
             return {"success": False, "message": "No active round"}
         
@@ -829,21 +829,21 @@ class WebGameSession:
             else:
                 return {"success": False, "message": "All hints used for this round"}
         
-        # Get positions of letters (not spaces or punctuation)
+        # Get positions of characters to reveal (letters, digits, and special characters, but not spaces)
         answer = self.current_item.lower()
-        letter_positions = []
+        char_positions = []
         for i, char in enumerate(answer):
-            if char.isalpha() and i not in self.revealed_letters:
-                letter_positions.append(i)
+            if not char.isspace() and i not in self.revealed_letters:
+                char_positions.append(i)
         
-        if not letter_positions:
+        if not char_positions:
             if lang_manager and lang_manager.current_language == 'pl':
-                return {"success": False, "message": "Nie ma więcej liter do ujawnienia"}
+                return {"success": False, "message": "Nie ma więcej znaków do ujawnienia"}
             else:
-                return {"success": False, "message": "No more letters to reveal"}
+                return {"success": False, "message": "No more characters to reveal"}
         
-        # Reveal a random letter
-        position = random.choice(letter_positions)
+        # Reveal a random character
+        position = random.choice(char_positions)
         self.revealed_letters.add(position)
         self.hints_used += 1
         
@@ -852,9 +852,9 @@ class WebGameSession:
         
         hints_remaining = self.max_hints - self.hints_used
         if lang_manager and lang_manager.current_language == 'pl':
-            message = f"Ujawniono literę! Pozostałe podpowiedzi: {hints_remaining}"
+            message = f"Ujawniono znak! Pozostałe podpowiedzi: {hints_remaining}"
         else:
-            message = f"Letter revealed! Hints remaining: {hints_remaining}"
+            message = f"Character revealed! Hints remaining: {hints_remaining}"
         
         return {
             "success": True,
@@ -866,19 +866,19 @@ class WebGameSession:
         }
     
     def _create_hint_display(self) -> str:
-        """Create a display string showing revealed letters and blanks"""
+        """Create a display string showing revealed characters and blanks"""
         if not self.current_item:
             return ""
         
         display = []
         for i, char in enumerate(self.current_item):
-            if char.isalpha():
+            if not char.isspace():  # All non-space characters can be revealed
                 if i in self.revealed_letters:
                     display.append(char.upper())
                 else:
                     display.append('_')
             else:
-                # Keep spaces and punctuation as is
+                # Keep spaces as is
                 display.append(char)
         
         return ''.join(display)
