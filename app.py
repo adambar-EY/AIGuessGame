@@ -438,7 +438,9 @@ Rules:
 - Start facts with first person ("I am", "I have", "I live", etc.)
 - Each fact should be a single sentence
 - Make it challenging but fair
-- Ensure the final fact makes it very clear what the answer is
+- NEVER directly reveal the name or title in the facts
+- The final fact should be very distinctive but must not contain the correct answer
+- Use descriptions, characteristics, and context instead of direct names
 - BE CREATIVE AND UNIQUE - avoid common or obvious choices"""
     
     def _add_avoidance_context(self, prompt, avoid_items):

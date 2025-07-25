@@ -189,7 +189,9 @@ class LanguageManager:
             - Zacznij fakty od pierwszej osoby ("Jestem", "Mam", "Mieszkam", itp.)
             - Każdy fakt powinien być pojedynczym zdaniem
             - Zrób to wyzwaniem, ale sprawiedliwym
-            - Upewnij się, że ostatni fakt jasno wskazuje na odpowiedź
+            - NIGDY nie ujawniaj bezpośrednio nazwy lub tytułu w faktach
+            - Ostatni fakt powinien być bardzo charakterystyczny, ale nie może zawierać właściwej odpowiedzi
+            - Używaj opisów, cech i kontekstu zamiast bezpośrednich nazw
             - Wszystkie fakty i nazwa muszą być w języku polskim"""
         else:
             # English prompt (default)
@@ -216,5 +218,7 @@ class LanguageManager:
             - Start facts with first person ("I am", "I have", "I live", etc.)
             - Each fact should be a single sentence
             - Make it challenging but fair
-            - Ensure the final fact makes it very clear what the answer is
+            - NEVER directly reveal the name or title in the facts
+            - The final fact should be very distinctive but must not contain the correct answer
+            - Use descriptions, characteristics, and context instead of direct names
             - All facts and name must be in English"""
