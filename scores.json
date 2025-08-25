@@ -1,0 +1,18 @@
+{
+  "best_session_score": 1200,
+  "best_round_score": 1200,
+  "longest_streak": 1,
+  "fastest_round": 19.786461,
+  "total_games": 1,
+  "total_wins": 1,
+  "sessions": [
+    {
+      "date": "2025-08-25T11:27:47.495041",
+      "player_name": "Adam",
+      "score": 1200,
+      "rounds": 1,
+      "wins": 1,
+      "grade": "A+"
+    }
+  ]
+}

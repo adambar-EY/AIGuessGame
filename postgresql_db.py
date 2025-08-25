@@ -24,10 +24,13 @@ class PostgreSQLHandler:
     
     def __init__(self):
         """Initialize PostgreSQL connection."""
-        self.connection: Optional[psycopg2.extensions.connection] = None
+        # Use simple assignments here to avoid introspection/type-annotation issues
+        self.connection = None
         self.is_connected_flag = False
+        self._connect_attempted = False
         self._setup_logging()
-        self._connect()
+        # Defer connecting until first use to avoid blocking app startup
+        # The actual connection will be attempted lazily in is_connected() or other methods
     
     def _get_connection(self) -> psycopg2.extensions.connection:
         """Get the connection, asserting it's not None for type checking."""
@@ -511,6 +514,11 @@ class PostgreSQLHandler:
     
     def is_connected(self) -> bool:
         """Check if connection is active."""
+        # Attempt to connect on first call (lazy connection)
+        if not self._connect_attempted:
+            self._connect_attempted = True
+            self._connect()
+        
         if not self.is_connected_flag or not self.connection:
             return False
         
@@ -1342,11 +1350,13 @@ class PostgreSQLHandler:
                 params: List[Any] = [language]
                 
                 if category:
-                    where_conditions.append("category = %s")
+                    # Case-insensitive comparison for category
+                    where_conditions.append("LOWER(category) = LOWER(%s)")
                     params.append(category)
                 
                 if difficulty:
-                    where_conditions.append("difficulty = %s")
+                    # Case-insensitive comparison for difficulty
+                    where_conditions.append("LOWER(difficulty) = LOWER(%s)")
                     params.append(difficulty)
                 
                 if exclude_used:

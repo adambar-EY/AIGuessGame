@@ -1065,6 +1065,28 @@ category_manager = GameCategoryManager(lang_manager=lang_manager)
 # Global category manager for tracking across all sessions
 global_category_manager = GameCategoryManager(lang_manager=lang_manager)
 
+def _localize_category_for_db(category: Optional[str], language: str) -> Optional[str]:
+    """Convert an English category key to the localized category name stored in DB for given language.
+
+    The DB stores localized category for non-English languages; when the UI sends the English key,
+    translate it so WHERE LOWER(category) matches rows.
+    """
+    if not category:
+        return None
+    if language == 'en':
+        return category
+    try:
+        lm = LanguageManager()
+        lm.set_language(language)
+        cm = GameCategoryManager(lang_manager=lm)
+        cat_obj = cm.find_category(category)
+        if not cat_obj:
+            return category
+        localized = cm.get_localized_category(cat_obj)
+        return localized.get('name', category)
+    except Exception:
+        return category
+
 def save_session_to_db(game_session: WebGameSession) -> bool:
     """Save game session data to database using CloudScoreKeeper"""
     try:
@@ -1571,16 +1593,19 @@ def handle_start_offline_game():
         # Debug: Check database connection
         print(f"🔌 Database connected: {db_handler.is_connected()}")
         
-        # Check if we have any offline questions available
+        # When language isn't English, convert the category to the localized value stored in DB
+        db_category = _localize_category_for_db(category if category else None, language)
+
+        # Check if we have any offline questions available (first, with selected difficulty)
         total_questions = db_handler.get_offline_question_count(
-            category=category if category else None,
+            category=db_category,
             difficulty=difficulty_name,
             language=language,
             exclude_used=True
         )
-        
-        print(f"📊 Total questions found: {total_questions}")
-        
+
+        print(f"📊 Total questions found (with difficulty='{difficulty_name}'): {total_questions}")
+
         # Also check total questions in database without filters for comparison
         total_all_questions = db_handler.get_offline_question_count(
             category=None,
@@ -1589,7 +1614,22 @@ def handle_start_offline_game():
             exclude_used=False
         )
         print(f"📊 Total questions in database for language '{language}': {total_all_questions}")
-        
+
+        # Fallback: if none for the selected difficulty, try any difficulty
+        if total_questions == 0:
+            total_any_difficulty = db_handler.get_offline_question_count(
+                category=db_category,
+                difficulty=None,
+                language=language,
+                exclude_used=True
+            )
+            print(f"📊 Fallback (any difficulty) questions found: {total_any_difficulty}")
+
+            # If we have questions in other difficulties, use them
+            if total_any_difficulty > 0:
+                total_questions = total_any_difficulty
+                difficulty_name = None  # signal to selection below to not filter by difficulty
+
         if total_questions == 0:
             # Set language for translations
             lang_manager.set_language(language)
@@ -1601,11 +1641,20 @@ def handle_start_offline_game():
         
         # Get a random question from database
         question_data = db_handler.get_random_offline_question(
-            category=category if category else None,
+            category=db_category,
             difficulty=difficulty_name,
             language=language,
             exclude_used=True
         )
+
+        # Fallback: if none for selected difficulty, try any difficulty
+        if not question_data:
+            question_data = db_handler.get_random_offline_question(
+                category=db_category,
+                difficulty=None,
+                language=language,
+                exclude_used=True
+            )
         
         if not question_data:
             return jsonify({
@@ -1617,14 +1666,15 @@ def handle_start_offline_game():
         # Mark question as used
         db_handler.mark_question_as_used(question_data['id'])
         
-        # Find difficulty level
+        # Find difficulty level (if difficulty_name is None due to fallback, keep 'normal' for scoring)
         difficulty = DifficultyLevel.get_level('normal')  # Use get_level method
         if difficulty is None:
             difficulty = DifficultyLevel.NORMAL  # Fallback to class variable
-        for level in DifficultyLevel.get_all_levels():
-            if level and level.get('name') == difficulty_name:
-                difficulty = level
-                break
+        if difficulty_name:
+            for level in DifficultyLevel.get_all_levels():
+                if level and level.get('name') == difficulty_name:
+                    difficulty = level
+                    break
         
         # Create new session with unique ID
         session_id = str(uuid.uuid4())
@@ -1656,7 +1706,7 @@ def handle_start_offline_game():
             'subcategory': subcategory,
             'item_name': item_name,
             'facts_available': len(facts),
-            'difficulty': difficulty_name,
+            'difficulty': difficulty_name or 'any',
             'mode': 'offline',
             'total_offline_questions': total_questions,
             'question_id': question_data['id']
@@ -1676,10 +1726,11 @@ def get_offline_status():
         language = request.args.get('lang', request.args.get('language', 'en'))
         category = request.args.get('category', '')  # Empty string means "Random"
         difficulty = request.args.get('difficulty', 'normal')
-        
-        # Convert empty category to None for database query
+
+        # Convert empty category to None for database query and localize for DB
         category_filter = category if category else None
-        
+        category_filter = _localize_category_for_db(category_filter, language)
+
         # Check total questions available (including used ones) with filters
         total_questions = db_handler.get_offline_question_count(
             category=category_filter,
@@ -1687,7 +1738,7 @@ def get_offline_status():
             language=language,
             exclude_used=False  # Include all questions
         )
-        
+
         # Check unused questions with filters
         unused_questions = db_handler.get_offline_question_count(
             category=category_filter,
@@ -1695,21 +1746,41 @@ def get_offline_status():
             language=language,
             exclude_used=True
         )
-        
+
+        # If none available for the selected difficulty, try any difficulty as a fallback
+        total_any = total_questions
+        unused_any = unused_questions
+        if unused_questions == 0:
+            total_any = db_handler.get_offline_question_count(
+                category=category_filter,
+                difficulty=None,
+                language=language,
+                exclude_used=False
+            )
+            unused_any = db_handler.get_offline_question_count(
+                category=category_filter,
+                difficulty=None,
+                language=language,
+                exclude_used=True
+            )
+
         # Offline is available if we have unused questions for this specific combination
-        offline_available = unused_questions > 0
-        
+        # or at least some for any difficulty (to allow graceful fallback)
+        offline_available = (unused_questions > 0) or (unused_any > 0)
+
         return jsonify({
             'offline_available': offline_available,
             'total_questions': total_questions,
             'unused_questions': unused_questions,
+            'total_questions_any_difficulty': total_any,
+            'unused_questions_any_difficulty': unused_any,
             'used_questions': total_questions - unused_questions,
             'categories': {},  # Skip category details for speed
             'language': language,
             'category': category,
             'difficulty': difficulty
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting offline status: {e}")
         return jsonify({
@@ -1733,9 +1804,12 @@ def handle_offline_new_round():
         category = data.get('category', '')
         difficulty_name = data.get('difficulty', 'normal')
         
+        # Localize category for DB filtering
+        db_category = _localize_category_for_db(category if category else None, language)
+
         # Check if we have any offline questions available (include used questions)
         total_questions = db_handler.get_offline_question_count(
-            category=category if category else None,
+            category=db_category,
             difficulty=difficulty_name,
             language=language,
             exclude_used=False  # Allow both used and unused questions
@@ -1752,11 +1826,20 @@ def handle_offline_new_round():
         
         # Get a random question from database (include used questions)
         question_data = db_handler.get_random_offline_question(
-            category=category if category else None,
+            category=db_category,
             difficulty=difficulty_name,
             language=language,
             exclude_used=False  # Allow both used and unused questions
         )
+
+        # Fallback to any difficulty if needed
+        if not question_data:
+            question_data = db_handler.get_random_offline_question(
+                category=db_category,
+                difficulty=None,
+                language=language,
+                exclude_used=False
+            )
         
         if not question_data:
             return jsonify({

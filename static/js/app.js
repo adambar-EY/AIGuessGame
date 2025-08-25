@@ -2583,10 +2583,18 @@ class GameApp {
             }, 3000);
 
             this.offlineAvailable = response.offline_available;
+            // Prefer filtered counts; if zero but fallback has values, use any-difficulty numbers
+            const total = response.total_questions && response.total_questions > 0
+                ? response.total_questions
+                : (response.total_questions_any_difficulty || 0);
+            const unused = response.unused_questions && response.unused_questions > 0
+                ? response.unused_questions
+                : (response.unused_questions_any_difficulty || 0);
+
             this.offlineStats = {
-                available_questions: response.unused_questions,
-                total_questions: response.total_questions,
-                used_questions: response.used_questions,
+                available_questions: unused,
+                total_questions: total,
+                used_questions: Math.max(total - unused, 0),
                 categories: response.categories
             };
 
@@ -2691,7 +2699,7 @@ class GameApp {
             offlineStatus.className = 'offline-status available';
         } else {
             // No questions at all
-            offlineStatus.textContent = 'No offline questions in database';
+            offlineStatus.textContent = this.t('no_offline_questions');
             offlineStatus.className = 'offline-status unavailable';
         }
     }
